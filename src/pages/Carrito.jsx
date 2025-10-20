@@ -1,6 +1,6 @@
 import { useCart } from '../context/CartContext';
 import { money } from '../utils/money';
-
+import '../styles/estilocarrito.css';
 
 export default function Carrito(){
 const { totals, cart, setQty, remove, coupon, setCoupon, clearCoupon, clear } = useCart();

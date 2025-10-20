@@ -1,0 +1,81 @@
+:root{
+  --bg:#f6f7f9; --card:#fff; --ink:#1f2937; --muted:#6b7280; --brand:#2563eb; --brand-ink:#fff;
+  --border:#e5e7eb; --ring:#c7d2fe; --max:1200px; --radius:14px; --shadow:0 6px 20px rgba(0,0,0,.06)
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;
+  color:var(--ink); background:var(--bg); line-height:1.55
+}
+a{color:inherit; text-decoration:none}
+a:hover{color:var(--brand)}
+.wrap{max-width:var(--max); margin:auto; padding:0 1rem}
+
+.top{background:#e5e7eb; border-bottom:1px solid var(--border)}
+.top__row{display:flex; align-items:center; gap:.75rem; padding:.6rem 0; font-size:.9rem; color:#374151}
+.spacer{flex:1}
+.top__sep{opacity:.4; margin:0 .5rem}
+header{background:#fff; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10}
+.nav{display:flex; align-items:center; gap:1rem; padding:.9rem 0}
+.brand{display:flex; align-items:center; gap:.6rem; font-weight:700}
+.brand__dot{width:.8rem; height:.8rem; border-radius:999px; background:#111}
+.nav__links{display:flex; gap:1rem; flex-wrap:wrap}
+.nav__links a{padding:.35rem .6rem; border-radius:.6rem}
+.nav__links a[aria-current="page"]{background:#f3f4f6}
+.nav__actions{margin-left:auto; display:flex; align-items:center; gap:1rem}
+.cart__badge{background:#111; color:#fff; border-radius:999px; padding:.05rem .45rem; font-size:.78rem}
+
+.auth{
+  display:grid; place-items:center; padding:2rem 0 2.5rem;
+}
+.auth__card{
+  width:min(520px, 100%);
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:1.25rem;
+}
+.auth__head{
+  display:grid; place-items:center; gap:.6rem; margin-bottom:1rem; text-align:center;
+}
+
+.auth__logo{
+  width:min(220px, 60%);
+  aspect-ratio:1 / 1;
+  display:grid; place-items:center;
+}
+.auth__logo img{
+  width:100%; height:100%;
+  object-fit:contain;
+  object-position:center;
+  display:block;
+}
+
+.auth form{display:grid; gap:.75rem}
+.field{display:grid; gap:.3rem}
+.field label{font-weight:600}
+.field input{
+  border:1px solid var(--border);
+  border-radius:.6rem;
+  padding:.6rem .8rem;
+  background:#fff;
+}
+.row-btns{
+  display:flex; gap:.6rem;
+  justify-content:flex-end; align-items:center;
+  margin-top:.25rem;
+}
+.btn-primary{
+  border:1px solid #111; background:#111; color:#fff;
+  padding:.6rem 1rem; border-radius:.7rem; font-weight:600;
+}
+.btn-secondary{
+  background:#fff; border:1px solid var(--border);
+  padding:.6rem 1rem; border-radius:.7rem;
+}
+.help{font-size:.9rem; color:var(--muted)}
+.error{font-size:.9rem; color:#b91c1c}
+.ok{font-size:.9rem; color:#15803d}
+.is-invalid{border-color:#fca5a5 !important; outline-color:#fca5a5}

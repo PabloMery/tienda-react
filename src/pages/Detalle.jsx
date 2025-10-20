@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import { PRODUCTS } from '../data/products';
 import { useCart } from '../context/CartContext';
 import { money } from '../utils/money';
-
+import '../styles/estilodetalleProductos.css';
 
 export default function Detalle(){
 const { id } = useParams();

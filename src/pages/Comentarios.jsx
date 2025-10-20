@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { PRODUCTS } from '../data/products';
-
+import '../styles/estilocomentarios.css';
 
 const CMT_KEY = 'comments_v1';
 

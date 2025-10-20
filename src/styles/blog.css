@@ -1,0 +1,88 @@
+:root{
+  --bg:#f6f7f9;--card:#fff;--ink:#1f2937;--muted:#6b7280;--brand:#2563eb;--brand-ink:#fff;
+  --border:#e5e7eb;--ring:#c7d2fe;--max:1200px;--radius:14px;--shadow:0 6px 20px rgba(0,0,0,.06)
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;
+  color:var(--ink);background:var(--bg);line-height:1.55
+}
+a{color:inherit;text-decoration:none}
+a:hover{color:var(--brand)}
+.wrap{max-width:var(--max);margin:auto;padding:0 1rem}
+
+.top{background:#e5e7eb;border-bottom:1px solid var(--border)}
+.top__row{display:flex;align-items:center;gap:.75rem;padding:.6rem 0;font-size:.9rem;color:#374151}
+.spacer{flex:1}
+.top__sep{opacity:.4;margin:0 .5rem}
+header{background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
+.nav{display:flex;align-items:center;gap:1rem;padding:.9rem 0}
+.brand{display:flex;align-items:center;gap:.6rem;font-weight:700}
+.brand__dot{width:.8rem;height:.8rem;border-radius:999px;background:#111}
+.nav__links{display:flex;gap:1rem;flex-wrap:wrap}
+.nav__links a{padding:.35rem .6rem;border-radius:.6rem}
+.nav__links a[aria-current="page"]{background:#f3f4f6}
+.nav__actions{margin-left:auto;display:flex;align-items:center;gap:1rem}
+.cart__badge{background:#111;color:#fff;border-radius:999px;padding:.05rem .45rem;font-size:.78rem}
+
+.blog-hero{padding:1.2rem 0 .6rem;text-align:center}
+.blog-hero h1{margin:0 0 .3rem;letter-spacing:.02em}
+
+.blog-list{display:grid;gap:1rem;padding:.5rem 0 1.5rem}
+.post-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  display:grid;
+  grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);
+  align-items:stretch;
+  overflow:hidden;
+}
+.post-body{padding:1rem;display:grid;gap:.5rem;align-content:start}
+.post-title{font-size:clamp(1.1rem,2.5vw,1.35rem);margin:0}
+.post-meta{font-size:.9rem;color:var(--muted)}
+.post-desc{color:var(--ink)}
+.post-actions{margin-top:.3rem}
+.btn-outline{
+  display:inline-block;border:1px solid #111;background:#fff;color:#111;
+  padding:.5rem .9rem;border-radius:.6rem;font-weight:600
+}
+
+.post-img{
+  margin:0;
+  width:100%;
+  height:clamp(220px, 30vw, 360px);
+  position:relative;
+  display:block;
+  background:repeating-linear-gradient(45deg,#e5e7eb,#e5e7eb 16px,#f3f4f6 16px,#f3f4f6 32px);
+}
+
+.post-img picture{width:100%;height:100%;display:block}
+
+.post-img img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+  object-position: 50% 25%;
+}
+
+.post-hero--tangana img{
+  object-fit: cover;
+  object-position: 28% 52%;
+}
+
+@media (max-width: 900px){
+  .post-hero--tangana img{ object-position: 20% 50%; }
+}
+
+.post-hero--tangana{
+  height: clamp(300px, 38vw, 460px);
+}
+
+@media (max-width:900px){
+  .post-card{grid-template-columns:1fr}
+  .post-img{height:clamp(180px, 45vw, 260px)}
+}
