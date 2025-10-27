@@ -7,20 +7,27 @@ import Detalle from "./pages/Detalle";
 import Carrito from "./pages/Carrito";
 import Comentarios from "./pages/Comentarios";
 import Blog from "./pages/Blog";
-
+import Contacto from "./pages/Contacto";
+import Registro from "./pages/Registro";
 // Placeholders para que no fallen los links (crea tus páginas reales luego)
 function Nosotros(){ return <main className="wrap"><h1>Nosotros</h1></main>; }
-function Contacto(){ return <main className="wrap"><h1>Contacto</h1></main>; }
 
-// Componente para el botón de carrito con contexto
+
 function CartButton() {
-  const { totalItems = 0 } = useCart?.() || {};
+  const { totalItems = 0, totals } = useCart();
+  // (opcional) fallback si no hubiera totalItems
+  const count = Number.isFinite(totalItems)
+    ? totalItems
+    : totals?.detailed?.reduce((a, i) => a + (Number(i.qty) || 0), 0) ?? 0;
+
   return (
-    <Link className="cart" to="/carrito" aria-label="Carrito">
-      🛒 Carrito <span className="cart__badge">{totalItems}</span>
+    <Link to="/carrito" aria-label="Carrito">
+      🛒 Carrito <span className="cart__badge">{count}</span>
     </Link>
   );
 }
+
+
 
 export default function App() {
   return (
@@ -69,6 +76,7 @@ export default function App() {
           <Route path="/blog" element={<Blog />} />
           <Route path="/nosotros" element={<Nosotros />} />
           <Route path="/contacto" element={<Contacto />} />
+          <Route path="/registro" element={<Registro />} />
           {/* Auth (si luego las creas) */}
           {/* <Route path="/login" element={<Login/>} />
           <Route path="/registro" element={<Registro/>} /> */}

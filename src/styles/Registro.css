@@ -1,0 +1,90 @@
+
+:root {
+  --bg:#f6f7f9; --card:#fff; --ink:#1f2937; --muted:#6b7280;
+  --brand:#2563eb; --brand-ink:#fff; --border:#e5e7eb; --ring:#c7d2fe;
+  --max:1200px; --radius:14px; --shadow:0 6px 20px rgba(0,0,0,.06);
+}
+
+/* Página registro (scoped) */
+.page-registro {
+  padding: 24px 0 56px;
+}
+
+/* Contenedor del formulario */
+.registro__container {
+  max-width: 520px;
+  margin: 24px auto 0;
+  padding: 20px;
+  background-color: #cfcfcf;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+/* Encabezado */
+.page-registro .form-header {
+  text-align: center;
+  margin-bottom: 24px;
+  background: #9e9e9e;
+  border: 3px solid #9e9e9e;
+  border-radius: 8px;
+  padding: 8px 0;
+}
+
+.page-registro h1 {
+  color: black;
+}
+
+/* Formulario */
+.page-registro .formulario { display: flex; flex-direction: column; }
+.page-registro .form-group { margin-bottom: 16px; }
+
+.page-registro label {
+  display: block;
+  margin-bottom: 6px;
+  color: #374151;
+  font-weight: 600;
+}
+
+.page-registro input,
+.page-registro select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color .3s;
+}
+
+.page-registro input:focus,
+.page-registro select:focus {
+  border-color: var(--brand);
+  outline: none;
+}
+
+/* Botón */
+.page-registro .btn-registrar {
+  background-color: white;
+  color: black;
+  border: 2px solid black;
+  padding: 12px 40px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color .3s, color .3s, border-color .3s;
+}
+
+.page-registro .btn-registrar:hover {
+  background-color: var(--brand);
+  color: white;
+  border-color: var(--brand);
+}
+
+/* Región / Comuna en fila */
+.page-registro .fila { display: flex; gap: 10px; }
+.page-registro .columna { flex: 1; }
+
+/* Responsive */
+@media (max-width: 560px){
+  .registro__container { margin-top: 12px; padding: 16px; }
+  .page-registro .fila { flex-direction: column; }
+}

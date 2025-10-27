@@ -3,7 +3,7 @@ import { PRODUCTS } from '../data/products';
 import ProductGrid from '../components/ProductGridHome';
 import '../styles/estiloHome.css';
 import { useCallback } from 'react';
-import { Link } from 'react-router-dom'; // 👈 importa Link
+import { Link } from 'react-router-dom';
 
 export default function Home({ cartCount = 0 }) {
   const handleSubscribe = useCallback((e) => {
@@ -20,8 +20,8 @@ export default function Home({ cartCount = 0 }) {
             <p> Nuestra colección ya está disponible con envíos a todo Chile.
                 Descubre nuestras novedades y productos nuevos. </p>
             <div className="hero__actions">
-              <Link to="/productos" className="btn">Ver Productos</Link>
-              <Link to="/nosotros" className="btn btn--ghost">Conócenos</Link>
+              <Link to="/productos" className="btn2">Ver Productos</Link>
+              <Link to="/nosotros" className="btn2 btn2--ghost">Conócenos</Link>
             </div>
           </div>
 

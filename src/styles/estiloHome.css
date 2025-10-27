@@ -209,7 +209,7 @@ footer{
     color:#fff;
     padding:.5rem .75rem;
     border-radius:.55rem
-}.hero .btn + .btn {
+}.hero .btn2 + .btn2 {
   margin-top: 0;             /* evita salto vertical entre ellos */
 }
 /* ===== HERO (versión única y limpia) ===== */
@@ -244,7 +244,7 @@ footer{
   flex-wrap: nowrap;
   gap:.6rem;
 }
-.hero .btn{
+.hero .btn2{
   display:inline-block;
   border:1px solid #111;
   background:#111;
@@ -255,12 +255,12 @@ footer{
   text-decoration:none;
   transition:all .2s ease;
 }
-.hero .btn:hover{ transform:translateY(-2px); }
-.hero .btn--ghost{
+.hero .btn2:hover{ transform:translateY(-2px); }
+.hero .btn2--ghost{
   background:#fff;
   color:#111;
 }
-.hero .btn--ghost:hover{
+.hero .btn2--ghost:hover{
   background:#111;
   color:#fff;
 }
