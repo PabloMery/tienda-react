@@ -1,6 +1,8 @@
 
 import React, { useState, useEffect } from "react";
 import "../styles/Registro.css";
+import { useNavigate } from "react-router-dom";
+import { useRegistro } from "../context/RegistroContext";
 
 export default function Registro() {
   // ====== ESTADOS (persisten en localStorage) ======
@@ -40,7 +42,7 @@ export default function Registro() {
   useEffect(()=>{ localStorage.setItem("telefono", telefono); }, [telefono]);
   useEffect(()=>{ localStorage.setItem("region", region); }, [region]);
   useEffect(()=>{ localStorage.setItem("comuna", comuna); }, [comuna]);
-
+  
   // ====== HANDLERS ======
   const handleRegionChange = (e) => {
     const value = e.target.value;

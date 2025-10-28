@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, NavLink, Link } from "react-router-dom";
 import { CartProvider, useCart } from "./context/CartContext";
 
+
 import Home from "./pages/Home";
 import Productos from "./pages/Productos";
 import Detalle from "./pages/Detalle";
@@ -60,8 +61,8 @@ export default function App() {
               <NavLink to="/blog">Blog</NavLink>
               <NavLink to="/contacto">Contacto</NavLink>
             </nav>
-
-            <div className="nav__actions">
+            
+            <div className="nav__links" >
               <CartButton />
             </div>
           </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../styles/contacto.css";
-import logo from "../../public/IMG/logo/logo.png";
+import logo from "/IMG/logo/logo.png";
 
 function Contacto() {
   // ================= ESTADOS =================
