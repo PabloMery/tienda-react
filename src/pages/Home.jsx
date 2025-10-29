@@ -5,7 +5,7 @@ import '../styles/estiloHome.css';
 import { useCallback } from 'react';
 import { Link } from 'react-router-dom';
 
-export default function Home({ cartCount = 0 }) {
+export default function Home() {
   const handleSubscribe = useCallback((e) => {
     e.preventDefault();
     alert('¡Gracias por suscribirte!');

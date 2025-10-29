@@ -1,17 +1,15 @@
-
 import React, { useState, useEffect } from "react";
 import "../styles/Registro.css";
 
-
 export default function Registro() {
   // ====== ESTADOS (persisten en localStorage) ======
-  const [nombre, setNombre]       = useState(localStorage.getItem("nombre") || "");
-  const [correo, setCorreo]       = useState(localStorage.getItem("correo") || "");
+  const [nombre, setNombre]         = useState(localStorage.getItem("nombre") || "");
+  const [correo, setCorreo]         = useState(localStorage.getItem("correo") || "");
   const [contrasena, setContrasena] = useState(localStorage.getItem("contrasena") || "");
-  const [confirmar, setConfirmar] = useState(localStorage.getItem("confirmar") || "");
-  const [telefono, setTelefono]   = useState(localStorage.getItem("telefono") || "");
-  const [region, setRegion]       = useState(localStorage.getItem("region") || "");
-  const [comuna, setComuna]       = useState(localStorage.getItem("comuna") || "");
+  const [confirmar, setConfirmar]   = useState(localStorage.getItem("confirmar") || "");
+  const [telefono, setTelefono]     = useState(localStorage.getItem("telefono") || "");
+  const [region, setRegion]         = useState(localStorage.getItem("region") || "");
+  const [comuna, setComuna]         = useState(localStorage.getItem("comuna") || "");
 
   // ====== MAPA REGIONES/COMUNAS ======
   const comunasPorRegion = {
@@ -41,7 +39,15 @@ export default function Registro() {
   useEffect(()=>{ localStorage.setItem("telefono", telefono); }, [telefono]);
   useEffect(()=>{ localStorage.setItem("region", region); }, [region]);
   useEffect(()=>{ localStorage.setItem("comuna", comuna); }, [comuna]);
-  
+
+  // ====== VALIDADORES BÁSICOS ======
+  const isNombreOk   = nombre.trim().length > 3;
+  const isCorreoOk   = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo);
+  const isPassOk     = contrasena.length >= 5;
+  const isConfirmOk  = confirmar === contrasena && confirmar !== "";
+  const isRegionOk   = !!region;
+  const isComunaOk   = !!comuna;
+
   // ====== HANDLERS ======
   const handleRegionChange = (e) => {
     const value = e.target.value;
@@ -51,13 +57,18 @@ export default function Registro() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!isNombreOk || !isCorreoOk || !isPassOk || !isConfirmOk || !isRegionOk || !isComunaOk) {
+      alert("Revisa los campos marcados en rojo ❌");
+      return;
+    }
     alert("Registro guardado correctamente ✅");
   };
 
   // ====== RENDER ======
   return (
-    <main className="wrap page-registro">
-      <div className="registro__container">
+    <main className="wrap page-registro App">
+      <div className="registro__container container">
         <header className="form-header">
           <h1>Registro de usuarios</h1>
         </header>
@@ -65,40 +76,79 @@ export default function Registro() {
         <form className="formulario" onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="nombre">Nombre completo</label>
-            <input type="text" id="nombre" placeholder="Pedrito Soto"
-              value={nombre} onChange={(e)=>setNombre(e.target.value)} />
+            <input
+              type="text"
+              id="nombre"
+              placeholder="Pedrito Soto"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              className={isNombreOk ? "ok" : nombre ? "error" : ""}
+              aria-invalid={(!isNombreOk && !!nombre) ? "true" : "false"}
+            />
           </div>
 
           <div className="form-group">
             <label htmlFor="correo">Correo</label>
-            <input type="email" id="correo" placeholder="pedrito@gmail.com"
-              value={correo} onChange={(e)=>setCorreo(e.target.value)} />
+            <input
+              type="email"
+              id="correo"
+              placeholder="pedrito@gmail.com"
+              value={correo}
+              onChange={(e) => setCorreo(e.target.value)}
+              className={isCorreoOk ? "ok" : correo ? "error" : ""}
+              aria-invalid={(!isCorreoOk && !!correo) ? "true" : "false"}
+            />
           </div>
 
           <div className="form-group">
             <label htmlFor="contrasena">Contraseña</label>
-            <input type="password" id="contrasena" placeholder="*****"
-              value={contrasena} onChange={(e)=>setContrasena(e.target.value)} />
+            <input
+              type="password"
+              id="contrasena"
+              placeholder="*****"
+              value={contrasena}
+              onChange={(e) => setContrasena(e.target.value)}
+              className={isPassOk ? "ok" : contrasena ? "error" : ""}
+              aria-invalid={(!isPassOk && !!contrasena) ? "true" : "false"}
+            />
           </div>
 
           <div className="form-group">
             <label htmlFor="confi_contrasena">Confirmar contraseña</label>
-            <input type="password" id="confi_contrasena" placeholder="*****"
-              value={confirmar} onChange={(e)=>setConfirmar(e.target.value)} />
+            <input
+              type="password"
+              id="confi_contrasena"
+              placeholder="*****"
+              value={confirmar}
+              onChange={(e) => setConfirmar(e.target.value)}
+              className={isConfirmOk ? "ok" : confirmar ? "error" : ""}
+              aria-invalid={(!isConfirmOk && !!confirmar) ? "true" : "false"}
+            />
           </div>
 
           <div className="form-group">
             <label htmlFor="telefono">Teléfono (opcional)</label>
-            <input type="tel" id="telefono" placeholder="123456789"
-              value={telefono} onChange={(e)=>setTelefono(e.target.value)} />
+            <input
+              type="tel"
+              id="telefono"
+              placeholder="123456789"
+              value={telefono}
+              onChange={(e) => setTelefono(e.target.value)}
+            />
           </div>
 
           <div className="form-group fila">
             <div className="columna">
               <label htmlFor="region">Región</label>
-              <select id="region" value={region} onChange={handleRegionChange}>
+              <select
+                id="region"
+                value={region}
+                onChange={handleRegionChange}
+                className={isRegionOk ? "ok" : region === "" ? "" : "error"}
+                aria-invalid={(!isRegionOk && region !== "") ? "true" : "false"}
+              >
                 <option value="" disabled>Seleccione su región</option>
-                {Object.keys(comunasPorRegion).map((reg)=>(
+                {Object.keys(comunasPorRegion).map((reg) => (
                   <option key={reg} value={reg}>{reg}</option>
                 ))}
               </select>
@@ -106,12 +156,20 @@ export default function Registro() {
 
             <div className="columna">
               <label htmlFor="comuna">Comuna</label>
-              <select id="comuna" value={comuna}
-                      onChange={(e)=>setComuna(e.target.value)} disabled={!region}>
+              <select
+                id="comuna"
+                value={comuna}
+                onChange={(e) => setComuna(e.target.value)}
+                disabled={!region}
+                className={
+                  !region ? "" : (isComunaOk ? "ok" : (comuna === "" ? "" : "error"))
+                }
+                aria-invalid={(region && !isComunaOk && comuna !== "") ? "true" : "false"}
+              >
                 <option value="" disabled>
                   {region ? "Seleccione su comuna" : "Seleccione una región primero"}
                 </option>
-                {region && comunasPorRegion[region]?.map((c)=>(
+                {region && comunasPorRegion[region]?.map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
               </select>

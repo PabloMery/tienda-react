@@ -12,17 +12,16 @@ export default function ProductCard({ p }) {
       <Link to={`/producto/${p.id}`} className="card__img">
         <img src={img} alt={p.name} loading="lazy" />
       </Link>
-
-      <div className="card__body">
-        <div className="muted">{p.category}</div>
-        <h3 className="t">{p.name}</h3>
-        <div className="row">
-          <span className="price">{money(p.price)}</span>
+        <div class="card__body">
+          <div class="muted">{p.category}</div>
+          <h3 class="t">{p.name}</h3>
+          <div class="row">
+            <span class="price">{money(p.price)}</span>
           <button type="button" onClick={() => add(p.id, 1)}>
             Añadir
           </button>
+          </div>
         </div>
-      </div>
     </article>
   );
 }
