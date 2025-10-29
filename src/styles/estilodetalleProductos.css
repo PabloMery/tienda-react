@@ -1,59 +1,244 @@
-:root{--bg:#f6f7f9;--card:#fff;--ink:#1f2937;--muted:#6b7280;--brand:#2563eb;--brand-ink:#fff;--border:#e5e7eb;--ring:#c7d2fe;--max:1200px;--radius:14px;--shadow:0 6px 20px rgba(0,0,0,.06)}
-*{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55}
-a{color:inherit;text-decoration:none} a:hover{color:var(--brand)} .wrap{max-width:var(--max);margin:auto;padding:0 1rem}
-.top{background:#e5e7eb;border-bottom:1px solid var(--border)} .top__row{display:flex;align-items:center;gap:.75rem;padding:.6rem 0;font-size:.9rem;color:#374151}.spacer{flex:1}.top__sep{opacity:.4;margin:0 .5rem}
-header{background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
-.nav{display:flex;align-items:center;gap:1rem;padding:.9rem 0}
-.brand{display:flex;align-items:center;gap:.6rem;font-weight:700}.brand__dot{width:.8rem;height:.8rem;border-radius:999px;background:#111}
-.nav__links{display:flex;gap:1rem;flex-wrap:wrap}.nav__actions{margin-left:auto}.cart__badge{background:#111;color:#fff;border-radius:999px;padding:.05rem .45rem;font-size:.78rem}
+/* ===== Breadcrumb ===== */
+.breadcrumb{
+  font-size:.9rem;
+  color:var(--muted);
+  margin:1rem 0;
+}
+.breadcrumb a{
+  color:inherit;
+  text-decoration:none;
+}
+.breadcrumb a:hover{ color:var(--brand) }
 
-.breadcrumb{font-size:.9rem;color:var(--muted);margin:1rem 0}
+/* ===== Layout producto ===== */
+.product{
+  display:grid;
+  gap:1.2rem;
+  grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);
+}
+.panel{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+}
+.left,.right{ padding:1rem }
 
-.product{display:grid;gap:1.2rem;grid-template-columns:1.2fr 1fr}
-.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
-.left,.right{padding:1rem}
-.thumbs{display:flex;gap:.5rem;margin-top:.6rem}
-.thumb{border:1px solid var(--border);background:#fff;border-radius:.4rem;padding:.35rem .5rem}
-.thumb.is-active{outline:3px solid var(--ring)}
-.p-title{display:flex;justify-content:space-between;gap:.5rem;align-items:flex-start}
-.p-title h1{margin:.2rem 0 .6rem;font-size:clamp(1.2rem,2.2vw,1.8rem)}
-.price{font-weight:800}
-.muted{color:var(--muted)}
-.qty{display:flex;gap:.5rem;align-items:center;margin:1rem 0}
-input[type=number]{width:80px;padding:.4rem;border:1px solid var(--border);border-radius:.5rem}
-.btn{border:1px solid var(--brand);background:var(--brand);color:#fff;padding:.6rem 1rem;border-radius:.7rem;font-weight:700}
-
-.rel__list{display:grid;gap:1rem;grid-template-columns:repeat(5,1fr)}
-.rel__item{background:#fff;border:1px solid var(--border);border-radius:.7rem;padding:.6rem;display:flex;flex-direction:column;gap:.4rem}
-.rel__img{aspect-ratio:4/3;background:#f3f4f6;border-radius:.5rem;overflow:hidden;border:1px dashed #e5e7eb;display:grid;place-items:center}
-.rel__img img{width:100%;height:100%;object-fit:cover;display:block}
-.rel__t{font-size:.95rem;min-height:2.6em;display:block}
-.rel__row{display:flex;justify-content:space-between;align-items:center;margin-top:.3rem}
-.rel__price{font-weight:700}
-.rel__add{border:1px solid var(--brand);background:var(--brand);color:#fff;padding:.35rem .6rem;border-radius:.5rem;font-weight:600}
-@media (max-width:900px){.rel__list{grid-template-columns:repeat(2,1fr)}}
-
+/* ===== Galería ===== */
 #p-main{
-  aspect-ratio: 4 / 3;
+  aspect-ratio:4/3;
   background:#f3f4f6;
   border-radius:10px;
   overflow:hidden;
-  display:grid; place-items:center;
+  display:grid;
+  place-items:center;
 }
-
-
 #p-main img{
-  width:100%; height:100%;
-  object-fit: contain;   
+  width:100%;
+  height:100%;
+  object-fit:contain;
   display:block;
 }
 
-.thumbs .thumb{
-  width:72px; height:56px;         
-  padding:0; overflow:hidden;
-  display:grid; place-items:center;
+/* Miniaturas */
+.thumbs{
+  display:flex;
+  gap:.5rem;
+  margin-top:.6rem;
+  flex-wrap:wrap;
 }
-.thumbs .thumb img{
-  width:100%; height:100%;
-  object-fit: cover; display:block;
+.thumb{
+  width:72px;
+  height:56px;
+  padding:0;
+  overflow:hidden;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--border);
+  background:#fff;
+  border-radius:.4rem;
+  cursor:pointer;
+}
+.thumb img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.thumb:is(:hover,:focus-visible){
+  border-color:var(--brand);
+}
+.thumb.is-active{
+  outline:3px solid var(--ring);
+  outline-offset:1px;
+}
+
+/* ===== Info derecha ===== */
+.p-title{
+  display:flex;
+  justify-content:space-between;
+  gap:.5rem;
+  align-items:flex-start;
+}
+.p-title h1{
+  margin:.2rem 0 .6rem;
+  font-size:clamp(1.2rem,2.2vw,1.8rem);
+}
+.price{ font-weight:800 }
+.muted{ color:var(--muted) }
+
+.qty{
+  display:flex;
+  gap:.5rem;
+  align-items:center;
+  margin:1rem 0;
+}
+input[type="number"]{
+  width:90px;
+  padding:.5rem .6rem;
+  border:1px solid var(--border);
+  border-radius:.55rem;
+  font:inherit;
+  background:#fff;
+}
+input[type="number"]:focus{
+  outline:none;
+  border-color:var(--brand);
+  box-shadow:0 0 0 4px var(--ring);
+}
+
+
+/* ===== Relacionados ===== */
+.related{ margin-top:1.2rem }
+.related h2{ margin:.5rem 0 1rem }
+
+.rel__list{
+  display:grid;
+  gap:1rem;
+  grid-template-columns:repeat(5,1fr);
+}
+@media (max-width:1200px){
+  .rel__list{ grid-template-columns:repeat(4,1fr) }
+}
+@media (max-width:900px){
+  .product{ grid-template-columns:1fr }        /* stack en móvil */
+  .rel__list{ grid-template-columns:repeat(2,1fr) }
+}
+@media (max-width:520px){
+  .rel__list{ grid-template-columns:1fr }
+}
+
+.rel__item{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:.7rem;
+  padding:.6rem;
+  display:flex;
+  flex-direction:column;
+  gap:.5rem;
+  text-decoration:none;
+  color:inherit;
+}
+.rel__item:hover{ border-color:var(--brand) }
+
+.rel__img{
+  aspect-ratio:4/3;
+  background:#f3f4f6;
+  border-radius:.5rem;
+  overflow:hidden;
+  border:1px dashed #e5e7eb;
+  display:grid;
+  place-items:center;
+}
+.rel__img img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.rel__name{
+  font-size:.95rem;
+  min-height:2.6em; /* 2 líneas aprox */
+  line-height:1.3;
+}
+.rel__price{ font-weight:700 }
+
+.rel__add{
+  align-self:flex-start;
+  border:1px solid var(--brand);
+  background:var(--brand);
+  color:var(--brand-ink);
+  padding:.35rem .6rem;
+  border-radius:.5rem;
+  font-weight:600;
+  cursor:pointer;
+}
+
+
+/* ===== Ajustes finos ===== */
+.wrap{ max-width:var(--max); margin:auto; padding:0 1rem }
+/* === Botones azules siempre === */
+.btn,
+.rel__add,
+button {
+  background-color: #2563eb;   /* azul sólido permanente */
+  border: 1px solid #1e40af;   /* azul más oscuro para el borde */
+  color: #ffffff;
+  padding: .6rem 1rem;
+  border-radius: .6rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,.1);
+  transition: transform .1s ease-in-out;
+}
+
+/* Pequeño efecto al presionar (sin cambiar color) */
+
+
+/* Estado deshabilitado (opcional) */
+.btn:disabled,
+.rel__add:disabled,
+button:disabled {
+  background-color: #93c5fd;
+  border-color: #93c5fd;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+/* === Botón tipo Material (azul permanente) === */
+.btn,.rel__add,button {
+  background-color: #1E63F7;    /* azul intenso como la imagen */
+  color: #fff;
+  border: none;
+  border-radius: 8px;          /* bordes suaves */
+  padding: 0.8rem 2rem;        /* tamaño cómodo */
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  transition: box-shadow 0.2s ease, transform 0.1s ease-in-out;
+  text-align: center;
+}
+
+/* efecto sutil al presionar */
+.btn:active,
+.rel__add:active,
+button:active {
+  transform: scale(0.97);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+/* opcional: efecto hover sin cambiar color */
+.btn:hover,
+.rel__add:hover,
+button:hover {
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+
+/* estado deshabilitado */
+.btn:disabled,
+.rel__add:disabled,
+button:disabled {
+  background-color: #93b7fd;
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 0.8;
 }

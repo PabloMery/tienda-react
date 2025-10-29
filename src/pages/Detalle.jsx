@@ -1,27 +1,140 @@
-import { useParams } from 'react-router-dom';
-import { PRODUCTS } from '../data/products';
-import { useCart } from '../context/CartContext';
-import { money } from '../utils/money';
-import '../styles/estilodetalleProductos.css';
+import { useMemo, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { PRODUCTS } from "../data/products";
+import { useCart } from "../context/CartContext";
+import { money } from "../utils/money";
+import "../styles/estilodetalleProductos.css";
 
-export default function Detalle(){
-const { id } = useParams();
-const p = PRODUCTS.find(x => x.id === Number(id));
-const { add } = useCart();
-if (!p) return <main><p>Producto no encontrado.</p></main>;
-return (
-<main className="detalle">
-    <div className="galeria">
-        {(p.images||['/IMG/placeholder.jpg']).map((src,i)=>(
-         <img key={i} src={src} alt={`${p.name} ${i+1}`} loading="lazy" />
-        ))}
-    </div>
-    <div className="info">
-        <h1>{p.name}</h1>
-        <p className="muted">{p.category}</p>
-        <p className="price">{money(p.price)}</p>
-        <button onClick={()=>add(p.id,1)}>Añadir al carrito</button>
-    </div>
-</main>
-);
+export default function Detalle() {
+  const { id } = useParams();
+  const { add } = useCart();
+
+  // ✅ Hooks SIEMPRE antes de cualquier return condicional
+  const [activeIdx, setActiveIdx] = useState(0);
+  const [qty, setQty] = useState(1);
+
+  const p = useMemo(() => PRODUCTS.find(x => x.id === Number(id)), [id]);
+
+  const images = useMemo(() => {
+    if (!p) return ["/IMG/placeholder.jpg"];
+    return (p.images && p.images.length > 0) ? p.images : ["/IMG/placeholder.jpg"];
+  }, [p]);
+
+  const related = useMemo(() => {
+    if (!p) return [];
+    return PRODUCTS
+      .filter(x => x.category === p.category && x.id !== p.id)
+      .slice(0, 4);
+  }, [p]);
+
+  const onChangeQty = (e) => {
+    const v = Number(e.target.value);
+    if (Number.isNaN(v)) return;
+    setQty(Math.max(1, Math.min(10, v)));
+  };
+
+  const addToCart = () => {
+    if (!p) return;
+    add(p.id, qty);
+  };
+
+  // ✅ Ahora el "no encontrado" se renderiza dentro del JSX,
+  //    sin romper el orden de los hooks
+  return (
+    <main className="wrap">
+      {!p ? (
+        <p>Producto no encontrado.</p>
+      ) : (
+        <>
+          {/* Breadcrumb */}
+          <nav className="breadcrumb">
+            <Link to="/">Home</Link> <span> › </span>
+            <Link to="/productos">{p.category}</Link> <span> › </span>
+            <span>{p.name}</span>
+          </nav>
+
+          {/* Product */}
+          <section className="product">
+            {/* Panel izquierdo */}
+            <div className="panel left">
+              <div id="p-main" className="p-main">
+                <img
+                  src={images[activeIdx]}
+                  alt={`${p.name} ${activeIdx + 1}`}
+                  loading="lazy"
+                />
+              </div>
+
+              <div id="p-thumbs" className="thumbs">
+                {images.map((src, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    className={`thumb ${i === activeIdx ? "is-active" : ""}`}
+                    onClick={() => setActiveIdx(i)}
+                    aria-label={`Ver imagen ${i + 1}`}
+                  >
+                    <img src={src} alt={`${p.name} miniatura ${i + 1}`} loading="lazy" />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Panel derecho */}
+            <div className="panel right">
+              <div className="p-title">
+                <h1 id="p-title">{p.name}</h1>
+                <div className="price" id="p-price">{money(p.price)}</div>
+              </div>
+
+              <p id="p-desc" className="muted">
+                {p.description || "Descripción no disponible."}
+              </p>
+
+              <div className="qty">
+                <label htmlFor="qty">Cantidad</label>
+                <input
+                  id="qty"
+                  type="number"
+                  min="1"
+                  max="10"
+                  value={qty}
+                  onChange={onChangeQty}
+                  inputMode="numeric"
+                />
+              </div>
+
+              <button id="add-btn" className="btn" onClick={addToCart}>
+                Añadir al carrito
+              </button>
+            </div>
+          </section>
+
+          {/* Relacionados */}
+          {related.length > 0 && (
+            <section className="related">
+              <h2>Productos Relacionados</h2>
+              <div id="related" className="rel__list">
+                {related.map(r => (
+                  <Link key={r.id} to={`/producto/${r.id}`} className="rel__item">
+                    <article>
+                      <div className="rel__img">
+                        <img
+                          src={(r.images && r.images[0]) || "/IMG/placeholder.jpg"}
+                          alt={r.name}
+                          loading="lazy"
+                        />
+                      </div>
+                      <h3 className="rel__name">{r.name}</h3>
+                      <div className="rel__price">{money(r.price)}</div>
+                    </article>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+        </>
+      )}
+    </main>
+  );
 }
