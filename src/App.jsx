@@ -13,9 +13,7 @@ import Registro from "./pages/Registro";
 import InicioSesion from "./pages/InicioSesion";
 import BlogDetalle1 from "./pages/BlogDetalle1";
 import BlogDetalle2 from "./pages/BlogDetalle2";
-
-// Placeholders para que no fallen los links (crea tus páginas reales luego)
-function Nosotros(){ return <main className="wrap"><h1>Nosotros</h1></main>; }
+import Nosotros from "./pages/Nosotros";
 
 
 function CartButton() {
