@@ -10,6 +10,8 @@ import Comentarios from "./pages/Comentarios";
 import Blog from "./pages/Blog";
 import Contacto from "./pages/Contacto";
 import Registro from "./pages/Registro";
+import InicioSesion from "./pages/InicioSesion";
+
 // Placeholders para que no fallen los links (crea tus páginas reales luego)
 function Nosotros(){ return <main className="wrap"><h1>Nosotros</h1></main>; }
 
@@ -78,6 +80,8 @@ export default function App() {
           <Route path="/nosotros" element={<Nosotros />} />
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/registro" element={<Registro />} />
+          <Route path="/login" element={<InicioSesion />} />
+
           {/* Auth (si luego las creas) */}
           {/* <Route path="/login" element={<Login/>} />
           <Route path="/registro" element={<Registro/>} /> */}
