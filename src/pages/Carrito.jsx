@@ -25,31 +25,34 @@ export default function Carrito() {
             </div>
           ) : (
             <div className="list">
-              {/* Encabezado tipo tabla */}
-              <div className="row" style={{fontWeight:600}}>
-                <div className="muted">Producto</div>
-                <div className="muted" style={{textAlign:'right'}}>Cantidad</div>
-                <div className="muted" style={{textAlign:'right'}}>Precio</div>
-                <div className="muted" style={{textAlign:'right'}}>Total</div>
-              </div>
 
               {totals.detailed.map((row) => (
                 <div className="row" key={row.id}>
                   {/* Col 1: imagen + nombre */}
-                  <div style={{display:'flex', alignItems:'center', gap:'.8rem'}}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '.8rem' }}>
                     <div className="ph">
-                      {/* si tienes imagen úsala; si no, queda el placeholder */}
-                      {row.product.image ? <img src={row.product.image} alt={row.product.name} /> : 'IMG'}
+                      {row.product.image
+                        ? <img src={row.product.image} alt={row.product.name} />
+                        : 'IMG'}
                     </div>
                     <div>
                       <div className="name">{row.product.name}</div>
-                      {/* opcional: subtítulo / marca */}
-                      {row.product.subtitle && <div className="muted">{row.product.subtitle}</div>}
+                      {row.product.subtitle && (
+                        <div className="muted">{row.product.subtitle}</div>
+                      )}
                     </div>
                   </div>
 
                   {/* Col 2: cantidad + quitar */}
                   <div className="qtyBox">
+                    <button
+                      className="iconBtn ghost"
+                      aria-label="Disminuir"
+                      onClick={() => setQty(row.id, Math.max(0, row.qty - 1))}
+                    >
+                      −
+                    </button>
+
                     <input
                       type="number"
                       min="0"
@@ -57,13 +60,22 @@ export default function Carrito() {
                       onChange={(e) => onQty(row.id, e.target.value)}
                       aria-label={`Cantidad de ${row.product.name}`}
                     />
+
                     <button
-                      className="iconBtn remove"
+                      className="iconBtn ghost"
+                      aria-label="Aumentar"
+                      onClick={() => setQty(row.id, row.qty + 1)}
+                    >
+                      +
+                    </button>
+
+                    <button
+                      className="iconBtn danger"
                       title="Quitar"
                       aria-label={`Quitar ${row.product.name}`}
                       onClick={() => remove(row.id)}
                     >
-                      ✕
+                      🗑
                     </button>
                   </div>
 
@@ -75,12 +87,10 @@ export default function Carrito() {
                 </div>
               ))}
 
-              {/* acciones debajo de la lista */}
-              <div style={{padding:'.8rem 0', display:'grid', gap:'.5rem', borderTop:'1px dashed #e5e7eb', marginTop:'.6rem'}}>
-                <button className="btn" style={{background:'transparent', color:'inherit', borderColor:'#e5e7eb'}} onClick={clearCoupon}>
-                  Limpiar cupón
-                </button>
-                <button className="btn" style={{background:'#ef4444', borderColor:'#ef4444'}} onClick={clear}>
+              {/* Acciones debajo de la lista */}
+              <div className="listActions">
+
+                <button className="btn danger" onClick={clear}>
                   Vaciar carrito
                 </button>
               </div>
@@ -113,14 +123,20 @@ export default function Carrito() {
               onChange={(e) => setCoupon(e.target.value)}
               placeholder="Ingresa cupón de descuento"
             />
-            <button className="iconBtn" title="Aplicar">✓</button>
+            <button className="iconBtn primary" title="Aplicar">
+              ✓
+            </button>
           </div>
 
-          <button id="pay" className="btn" disabled={!hasItems}>PAGAR</button>
-
+          <button id="pay" className="btn primary" disabled={!hasItems}>
+            PAGAR
+          </button>
+          <button className="btn ghost" onClick={clearCoupon}>
+            Limpiar cupón
+          </button>
           <DatosCliente
             title="Resumen del cliente"
-            fields={['nombre','correo','region','comuna']}
+            fields={['nombre', 'correo', 'region', 'comuna']}
             className="datos-cliente"
           />
         </aside>
