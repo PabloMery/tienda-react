@@ -71,7 +71,7 @@ export default function InicioSesion() {
           loginAt: Date.now(),
         })
       );
-    } catch {}
+    } catch {""}
 
     setAuthMsg("Inicio de sesión exitoso ✅");
   };
