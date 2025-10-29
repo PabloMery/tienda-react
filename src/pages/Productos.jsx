@@ -6,6 +6,7 @@ import ProductCard from '../components/ProductCard';
 export default function Productos() {
   return (
     <main className="productos">
+      <h1 className="title">Productos</h1>
       <section id="grid" className="grid">
         {PRODUCTS.map(p => <ProductCard key={p.id} p={p} />)}
       </section>

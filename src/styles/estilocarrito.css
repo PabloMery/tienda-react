@@ -1,108 +1,37 @@
-/* === ESTILOS GENERALES === */
-a {
-  color: inherit;
-  text-decoration: none;
-}
-a:hover {
-  color: var(--brand);
-}
-.wrap {
-  max-width: var(--max);
-  margin: auto;
-  padding: 0 1rem;
-}
-
-/* === PALETA PRINCIPAL === */
+/* === VARIABLES === */
 :root {
-  --brand: #3b82f6;       /* azul principal */
-  --brand-600: #2563eb;   /* hover */
-  --brand-700: #1d4ed8;   /* active */
-  --muted: #6b7280;
-  --border: #e5e7eb;
-  --card: #ffffff;
-  --card-soft: #f8fafc;
-  --radius: .8rem;
-  --shadow: 0 6px 20px rgba(2, 6, 23, .06);
-  --max: 1200px;
+  --brand:#3b82f6;
+  --brand-600:#2563eb;
+  --brand-700:#1d4ed8;
+  --muted:#6b7280;
+  --border:#e5e7eb;
+  --card:#ffffff;
+  --card-soft:#f8fafc;
+  --radius:.8rem;
+  --shadow:0 6px 20px rgba(2,6,23,.06);
+  --max:1200px;
 }
 
-/* === HEADER / NAVEGACIÓN === */
-.top {
-  background: #e5e7eb;
-  border-bottom: 1px solid var(--border);
-}
-.top__row {
-  display: flex;
-  align-items: center;
-  gap: .75rem;
-  padding: .6rem 0;
-  font-size: .9rem;
-  color: #374151;
-}
-.spacer { flex: 1; }
-.top__sep { opacity: .4; margin: 0 .5rem; }
+/* === BASE === */
+a { color: inherit; text-decoration: none; }
+a:hover { color: var(--brand); }
+.wrap { max-width: var(--max); margin: auto; padding: 0 1rem; }
 
-header {
-  background: #fff;
-  border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-.nav {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: .9rem 0;
-}
-.brand {
-  display: flex;
-  align-items: center;
-  gap: .6rem;
-  font-weight: 700;
-}
-.brand__dot {
-  width: .8rem;
-  height: .8rem;
-  border-radius: 999px;
-  background: #111;
-}
-.nav__links {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-.nav__links a[aria-current=page] {
-  background: #f3f4f6;
-  border-radius: .6rem;
-  padding: .35rem .6rem;
-}
-.nav__actions { margin-left: auto; }
-.cart__badge {
-  background: #111;
-  color: #fff;
-  border-radius: 999px;
-  padding: .05rem .45rem;
-  font-size: .78rem;
-}
-
-/* === TÍTULO PRINCIPAL === */
+/* === TITULO === */
 .title {
   padding: 1.2rem 0 .6rem;
   font-size: clamp(1.2rem, 2.2vw, 1.8rem);
   font-weight: 800;
-  letter-spacing: .2px;
 }
 
-/* === LAYOUT PRINCIPAL DEL CARRITO === */
+/* === LAYOUT === */
 .cart {
   display: grid;
   gap: 1.2rem;
   grid-template-columns: 2fr 1fr;
   margin-bottom: 1.5rem;
-  align-items: normal;
+  align-items: start;
 }
-
 .panel {
   background: var(--card);
   border: 1px solid var(--border);
@@ -110,7 +39,7 @@ header {
   box-shadow: var(--shadow);
 }
 
-/* === LISTA DE PRODUCTOS === */
+/* === LISTA === */
 .list { padding: 1rem; }
 .row {
   display: grid;
@@ -122,7 +51,11 @@ header {
 }
 .row:hover { background: var(--card-soft); }
 .row:last-child { border-bottom: 0; }
+.row.head { font-weight: 700; }
+.align-end { text-align: right; }
+.prodCell { display: flex; align-items: center; gap: .8rem; }
 
+/* === IMAGEN === */
 .ph {
   width: 86px;
   aspect-ratio: 1/1;
@@ -132,7 +65,7 @@ header {
   overflow: hidden;
   display: grid;
   place-items: center;
-  color: #6b7280;
+  box-shadow: inset 0 0 3px rgba(0,0,0,.04);
 }
 .ph img {
   width: 100%;
@@ -141,17 +74,19 @@ header {
   display: block;
 }
 
+/* === TEXTO === */
 .name { font-weight: 600; }
 .muted { color: var(--muted); font-size: .92rem; }
-.price { font-weight: 800; text-align: right; }
-
-.empty {
-  padding: 1.2rem;
-  text-align: center;
-  color: var(--muted);
+.price {
+  font-weight: 800;
+  text-align: right;
+  white-space: nowrap;
 }
 
-/* === CONTROLES DE CANTIDAD === */
+/* === VACÍO === */
+.empty { padding: 1.2rem; text-align: center; color: var(--muted); }
+
+/* === CANTIDAD === */
 .qtyBox {
   display: flex;
   justify-content: flex-end;
@@ -168,50 +103,103 @@ header {
   font-weight: 700;
 }
 .qtyBox input:focus {
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, .15);
+  box-shadow: 0 0 0 3px rgba(59,130,246,.15);
   border-color: var(--brand);
 }
 
 /* === BOTONES ICONO === */
-.iconBtn {
-  border: 1px solid var(--border);
-  background: #fff;
+/* === BOTONES ICONO === */
+.button-icon {
   width: 34px;
   height: 34px;
+  border: 1px solid var(--border);
   border-radius: .55rem;
-  display: grid;
-  place-items: center;
-  font-weight: 800;
-  transition: .15s ease;
+  background: #fff;
+
+  /* Centrado absoluto */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+  margin: 0;
+  line-height: 0;
+  color: #111;
+  cursor: pointer;
+  transition: 0.15s ease;
 }
-.iconBtn:hover {
-  border-color: #cbd5e1;
-  background: #f8fafc;
+
+/* Asegura que el contenido interior sea un bloque centrado */
+.button-icon .icon {
+  display: block;
+  font-size: 18px;
+  line-height: 1;
+  text-align: center;
 }
-.iconBtn.primary {
+
+/* Variantes y efectos */
+.button-icon:hover { border-color: #cbd5e1; background: #f8fafc; }
+
+.button-icon.primary {
   background: var(--brand);
   border-color: var(--brand);
   color: #fff;
 }
-.iconBtn.primary:hover {
+.button-icon.primary:hover {
   background: var(--brand-600);
   border-color: var(--brand-600);
 }
-.iconBtn.danger {
-  color: #ef4444;
-}
-.iconBtn.danger:hover {
-  background: #fee2e2;
-  border-color: #fecaca;
-}
-.iconBtn.ghost {
-  background: #fff;
-}
-.iconBtn.ghost:hover {
-  background: #f1f5f9;
+
+.button-icon.danger { color: #ef4444; }
+.button-icon.danger:hover { background: #fee2e2; border-color: #fecaca; }
+
+.button-icon.ghost { background: #fff; }
+.button-icon.ghost:hover { background: #f1f5f9; }
+
+.button-icon:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
-/* === ACCIONES DE LISTA (limpiar/vaciar) === */
+/* === BOTONES PRINCIPALES === */
+.button {
+  border: 1px solid var(--brand);
+  background: var(--brand);
+  color: #fff;
+  width: 100%;
+  padding: .8rem 1rem;
+  border-radius: .9rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+  transition: .18s ease;
+  text-align: center;
+}
+.button:hover { background: var(--brand-600); border-color: var(--brand-600); }
+.button:active { background: var(--brand-700); }
+.button:disabled { opacity: .6; cursor: not-allowed; }
+
+/* Variantes */
+.button.ghost {
+  background: transparent;
+  color: #111;
+  border: 1px solid var(--border);
+}
+.button.ghost:hover { background: #f3f4f6; }
+.button.danger {
+  background: #ef4444;
+  border-color: #ef4444;
+}
+.button.danger:hover {
+  background: #dc2626;
+}
+.button.primary {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+}
+
+/* === ACCIONES === */
 .listActions {
   padding: .8rem 0;
   display: grid;
@@ -220,7 +208,7 @@ header {
   margin-top: .6rem;
 }
 
-/* === PANEL DE RESUMEN === */
+/* === RESUMEN === */
 .summary { padding: 1.1rem; }
 .sumLine {
   display: flex;
@@ -228,10 +216,7 @@ header {
   margin: .45rem 0;
 }
 .sumLine strong { font-weight: 800; }
-.total {
-  font-size: 1.15rem;
-  font-weight: 900;
-}
+.total { font-size: 1.15rem; font-weight: 900; }
 .coupon {
   display: flex;
   gap: .5rem;
@@ -245,60 +230,12 @@ header {
   outline: none;
 }
 .coupon input:focus {
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, .15);
+  box-shadow: 0 0 0 3px rgba(59,130,246,.15);
   border-color: var(--brand);
-}
-
-/* === BOTONES PRINCIPALES === */
-.btn {
-  border: 1px solid var(--brand);
-  background: var(--brand);
-  color: #fff;
-  width: 100%;
-  padding: .8rem 1rem;
-  border-radius: .9rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: .3px;
-  transition: .18s ease;
-  text-align: center;
-}
-.btn:hover {
-  background: var(--brand-600);
-  border-color: var(--brand-600);
-}
-.btn:active {
-  background: var(--brand-700);
-}
-.btn:disabled {
-  opacity: .6;
-  cursor: not-allowed;
-}
-
-/* VARIANTES */
-.btn.ghost {
-  background: transparent;
-  color: #111;
-  border: 1px solid var(--border);
-}
-.btn.ghost:hover {
-  background: #f3f4f6;
-}
-.btn.danger {
-  background: #ef4444;
-  border-color: #ef4444;
-}
-.btn.danger:hover {
-  background: #dc2626;
-}
-.btn.primary {
-  background: var(--brand);
-  border-color: var(--brand);
-  color: #fff;
 }
 
 /* === RESPONSIVE === */
-@media (max-width: 900px) {
+@media (max-width:900px) {
   .cart { grid-template-columns: 1fr; }
   .row { grid-template-columns: 70px 1fr 100px 120px; }
 }

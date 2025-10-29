@@ -10,7 +10,7 @@ try { return JSON.parse(localStorage.getItem(CMT_KEY)) ?? []; }
 catch { return []; }
 }
 function writeAll(arr){
-try { localStorage.setItem(CMT_KEY, JSON.stringify(arr)); } catch {}
+try { localStorage.setItem(CMT_KEY, JSON.stringify(arr)); } catch {""}
 }
 
 

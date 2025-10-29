@@ -65,7 +65,9 @@ export default function Registro() {
   const saveUsers = (arr) => {
     try {
       localStorage.setItem(USERS_KEY, JSON.stringify(arr));
-    } catch {}
+    } catch (error) {
+      console.error('Error saving users:', error);
+    }
   };
 
   

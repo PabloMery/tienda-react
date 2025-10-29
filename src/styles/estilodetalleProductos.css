@@ -178,7 +178,7 @@ input[type="number"]:focus{
 /* ===== Ajustes finos ===== */
 .wrap{ max-width:var(--max); margin:auto; padding:0 1rem }
 /* === Botones azules siempre === */
-.btn,
+.btn2,
 .rel__add,
 button {
   background-color: #2563eb;   /* azul sólido permanente */
@@ -196,7 +196,7 @@ button {
 
 
 /* Estado deshabilitado (opcional) */
-.btn:disabled,
+.btn2:disabled,
 .rel__add:disabled,
 button:disabled {
   background-color: #93c5fd;
@@ -205,7 +205,7 @@ button:disabled {
   opacity: 0.7;
 }
 /* === Botón tipo Material (azul permanente) === */
-.btn,.rel__add,button {
+.btn2,.rel__add,button {
   background-color: #1E63F7;    /* azul intenso como la imagen */
   color: #fff;
   border: none;
@@ -231,14 +231,4 @@ button:active {
 .rel__add:hover,
 button:hover {
   box-shadow: 0 3px 6px rgba(0,0,0,0.2);
-}
-
-/* estado deshabilitado */
-.btn:disabled,
-.rel__add:disabled,
-button:disabled {
-  background-color: #93b7fd;
-  box-shadow: none;
-  cursor: not-allowed;
-  opacity: 0.8;
 }

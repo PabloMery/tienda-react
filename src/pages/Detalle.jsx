@@ -104,7 +104,7 @@ export default function Detalle() {
                 />
               </div>
 
-              <button id="add-btn" className="btn" onClick={addToCart}>
+              <button id="add-btn2" className="btn2" onClick={addToCart}>
                 Añadir al carrito
               </button>
             </div>
