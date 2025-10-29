@@ -2,6 +2,7 @@ import { useCart } from '../context/CartContext';
 import { money } from '../utils/money';
 import '../styles/estilocarrito.css';
 import DatosCliente from '../components/DatosCliente';
+import { productMainImage } from "../utils/images";
 
 export default function Carrito() {
   const { totals, setQty, remove, coupon, setCoupon, clearCoupon, clear } = useCart();
@@ -31,10 +32,9 @@ export default function Carrito() {
                   {/* Col 1: imagen + nombre */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '.8rem' }}>
                     <div className="ph">
-                      {row.product.image
-                        ? <img src={row.product.image} alt={row.product.name} />
-                        : 'IMG'}
+                      <img src={productMainImage(row.product)} alt={row.product.name} loading="lazy" />
                     </div>
+
                     <div>
                       <div className="name">{row.product.name}</div>
                       {row.product.subtitle && (
@@ -80,20 +80,15 @@ export default function Carrito() {
                   </div>
 
                   {/* Col 3: precio unitario */}
-                  <div className="price">{money(row.product.price)}</div>
+                  <div className="price">Precio Unitario: {money(row.product.price)}</div>
 
                   {/* Col 4: total línea */}
-                  <div className="price">{money(row.line)}</div>
+                  <div className="price">Total: {money(row.line)}</div>
                 </div>
               ))}
 
               {/* Acciones debajo de la lista */}
-              <div className="listActions">
 
-                <button className="btn danger" onClick={clear}>
-                  Vaciar carrito
-                </button>
-              </div>
             </div>
           )}
         </div>
@@ -127,13 +122,19 @@ export default function Carrito() {
               ✓
             </button>
           </div>
+            <div className="listActions">
+              <button id="pay" className="btn primary" disabled={!hasItems}>
+                PAGAR
+              </button>
+              
+              <button className="btn ghost" onClick={clearCoupon}>
+                Limpiar cupón
+              </button>
+              <button className="btn danger" onClick={clear}>
+                Vaciar carrito
+              </button>
+            </div>
 
-          <button id="pay" className="btn primary" disabled={!hasItems}>
-            PAGAR
-          </button>
-          <button className="btn ghost" onClick={clearCoupon}>
-            Limpiar cupón
-          </button>
           <DatosCliente
             title="Resumen del cliente"
             fields={['nombre', 'correo', 'region', 'comuna']}
