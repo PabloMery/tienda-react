@@ -2,17 +2,29 @@ import React, { useState, useEffect } from "react";
 import "../styles/inicioSesion.css";
 
 const EMAIL_RX = /^[^\s@]+@(duoc\.cl|profesor\.duoc\.cl|gmail\.com)$/i;
+const USERS_KEY = "usuarios_v1";
+const SESSION_KEY = "session_user";
+
+const getUsers = () => {
+  try {
+    return JSON.parse(localStorage.getItem(USERS_KEY)) || [];
+  } catch {
+    return [];
+  }
+};
 
 export default function InicioSesion() {
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [errors, setErrors] = useState({});
   const [isValid, setIsValid] = useState(false);
+  const [authMsg, setAuthMsg] = useState("");
 
   const validateEmail = () => {
     if (!email) return "El correo es requerido.";
     if (email.length > 100) return "Máximo 100 caracteres.";
-    if (!EMAIL_RX.test(email)) return "Usa @duoc.cl, @profesor.duoc.cl o @gmail.com.";
+    if (!EMAIL_RX.test(email))
+      return "Usa @duoc.cl, @profesor.duoc.cl o @gmail.com.";
     return "";
   };
 
@@ -28,12 +40,40 @@ export default function InicioSesion() {
     const passError = validatePassword();
     setErrors({ email: emailError, pass: passError });
     setIsValid(!emailError && !passError);
+    setAuthMsg("");
   }, [email, pass]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!isValid) return;
-    alert("Inicio de sesión exitoso (simulado).");
+
+    const users = getUsers();
+    const user = users.find(
+      (u) => (u.correo || "").toLowerCase() === email.toLowerCase()
+    );
+
+    if (!user) {
+      setAuthMsg("Usuario no registrado.");
+      return;
+    }
+
+    if (user.pass !== pass) {
+      setAuthMsg("Contraseña incorrecta.");
+      return;
+    }
+
+    try {
+      localStorage.setItem(
+        SESSION_KEY,
+        JSON.stringify({
+          correo: user.correo,
+          nombre: user.nombre,
+          loginAt: Date.now(),
+        })
+      );
+    } catch {}
+
+    setAuthMsg("Inicio de sesión exitoso ✅");
   };
 
   return (
@@ -56,12 +96,12 @@ export default function InicioSesion() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className={errors.email ? "is-invalid" : ""}
-              aria-describedby="email-help email-error"
             />
-            <div id="email-help" className="help">
-              Sólo se aceptan correos @duoc.cl, @profesor.duoc.cl o @gmail.com (máx. 100).
+            <div className="help">
+              Sólo se aceptan correos @duoc.cl, @profesor.duoc.cl o @gmail.com
+              (máx. 100).
             </div>
-            {errors.email && <div id="email-error" className="error">{errors.email}</div>}
+            {errors.email && <div className="error">{errors.email}</div>}
           </div>
 
           <div className="field">
@@ -72,13 +112,21 @@ export default function InicioSesion() {
               value={pass}
               onChange={(e) => setPass(e.target.value)}
               className={errors.pass ? "is-invalid" : ""}
-              aria-describedby="pass-help pass-error"
             />
-            <div id="pass-help" className="help">
-              Requerida, entre 4 y 10 caracteres.
-            </div>
-            {errors.pass && <div id="pass-error" className="error">{errors.pass}</div>}
+            <div className="help">Requerida, entre 4 y 10 caracteres.</div>
+            {errors.pass && <div className="error">{errors.pass}</div>}
           </div>
+
+          {authMsg && (
+            <div
+              className={`auth-msg ${
+                /exitoso|✅/i.test(authMsg) ? "ok" : "error"
+              }`}
+              style={{ marginTop: 8 }}
+            >
+              {authMsg}
+            </div>
+          )}
 
           <div className="row-btns">
             <button type="submit" className="btn-primary" disabled={!isValid}>

@@ -10,6 +10,10 @@ export default function Registro() {
   const [telefono, setTelefono]     = useState(localStorage.getItem("telefono") || "");
   const [region, setRegion]         = useState(localStorage.getItem("region") || "");
   const [comuna, setComuna]         = useState(localStorage.getItem("comuna") || "");
+  const [regError, setRegError] = useState("");
+  const [regOk, setRegOk] = useState(false);
+
+  const USERS_KEY = "usuarios_v1";
 
   // ====== MAPA REGIONES/COMUNAS ======
   const comunasPorRegion = {
@@ -47,7 +51,24 @@ export default function Registro() {
   const isConfirmOk  = confirmar === contrasena && confirmar !== "";
   const isRegionOk   = !!region;
   const isComunaOk   = !!comuna;
+  
 
+  // ====== HELPERS DE USUARIOS ======
+  const getUsers = () => {
+    try {
+      return JSON.parse(localStorage.getItem(USERS_KEY)) || [];
+    } catch {
+      return [];
+    }
+  };
+
+  const saveUsers = (arr) => {
+    try {
+      localStorage.setItem(USERS_KEY, JSON.stringify(arr));
+    } catch {}
+  };
+
+  
   // ====== HANDLERS ======
   const handleRegionChange = (e) => {
     const value = e.target.value;
@@ -57,12 +78,38 @@ export default function Registro() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setRegError("");
+    setRegOk(false);
 
     if (!isNombreOk || !isCorreoOk || !isPassOk || !isConfirmOk || !isRegionOk || !isComunaOk) {
-      alert("Revisa los campos marcados en rojo ❌");
+      setRegError("Revisa los campos marcados en rojo ❌");
       return;
     }
-    alert("Registro guardado correctamente ✅");
+
+
+    const users = getUsers();
+    const exists = users.some(
+      (u) => (u.correo || "").toLowerCase() === correo.toLowerCase()
+    );
+
+    if (exists) {
+      setRegError("Ya existe una cuenta registrada con este correo.");
+      return;
+    }
+
+    const nuevo = {
+      id: Date.now(),
+      nombre,
+      correo: correo.trim(),
+      pass: contrasena,
+      region,
+      comuna,
+      telefono,
+    };
+
+    saveUsers([...users, nuevo]);
+    setRegOk(true);
+    setRegError("");
   };
 
   // ====== RENDER ======
@@ -83,7 +130,6 @@ export default function Registro() {
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               className={isNombreOk ? "ok" : nombre ? "error" : ""}
-              aria-invalid={(!isNombreOk && !!nombre) ? "true" : "false"}
             />
           </div>
 
@@ -96,7 +142,6 @@ export default function Registro() {
               value={correo}
               onChange={(e) => setCorreo(e.target.value)}
               className={isCorreoOk ? "ok" : correo ? "error" : ""}
-              aria-invalid={(!isCorreoOk && !!correo) ? "true" : "false"}
             />
           </div>
 
@@ -109,7 +154,6 @@ export default function Registro() {
               value={contrasena}
               onChange={(e) => setContrasena(e.target.value)}
               className={isPassOk ? "ok" : contrasena ? "error" : ""}
-              aria-invalid={(!isPassOk && !!contrasena) ? "true" : "false"}
             />
           </div>
 
@@ -122,7 +166,6 @@ export default function Registro() {
               value={confirmar}
               onChange={(e) => setConfirmar(e.target.value)}
               className={isConfirmOk ? "ok" : confirmar ? "error" : ""}
-              aria-invalid={(!isConfirmOk && !!confirmar) ? "true" : "false"}
             />
           </div>
 
@@ -145,11 +188,12 @@ export default function Registro() {
                 value={region}
                 onChange={handleRegionChange}
                 className={isRegionOk ? "ok" : region === "" ? "" : "error"}
-                aria-invalid={(!isRegionOk && region !== "") ? "true" : "false"}
               >
                 <option value="" disabled>Seleccione su región</option>
                 {Object.keys(comunasPorRegion).map((reg) => (
-                  <option key={reg} value={reg}>{reg}</option>
+                  <option key={reg} value={reg}>
+                    {reg}
+                  </option>
                 ))}
               </select>
             </div>
@@ -164,7 +208,6 @@ export default function Registro() {
                 className={
                   !region ? "" : (isComunaOk ? "ok" : (comuna === "" ? "" : "error"))
                 }
-                aria-invalid={(region && !isComunaOk && comuna !== "") ? "true" : "false"}
               >
                 <option value="" disabled>
                   {region ? "Seleccione su comuna" : "Seleccione una región primero"}
@@ -177,6 +220,16 @@ export default function Registro() {
           </div>
 
           <button type="submit" className="btn-registrar">Registrar</button>
+          {regError && (
+            <p className="error" style={{ marginTop: 12 }}>
+              {regError}
+            </p>
+          )}
+          {regOk && (
+            <p className="ok" style={{ marginTop: 12 }}>
+              Registro guardado correctamente ✅
+            </p>
+          )}        
         </form>
       </div>
     </main>
