@@ -1,15 +1,6 @@
 import { useEffect, useState } from "react";
 
-/**
- * Componente: DatosCliente
- * Lee valores de localStorage y los muestra.
- *
- * Props:
- * - fields?: string[]  -> qué campos mostrar (por defecto muestra todos)
- *    Posibles: "nombre","correo","region","comuna","telefono","cart_v2"
- * - title?: string     -> título a mostrar (default: "Datos guardados")
- * - className?: string -> estilos externos opcionales
- */
+
 export default function DatosCliente({
   fields = ["nombre", "correo", "region", "comuna", "telefono", "cart_v2"],
   title = "Datos guardados",
@@ -28,7 +19,6 @@ export default function DatosCliente({
     try { return JSON.parse(str); } catch { return fallback; }
   };
 
-  // Carga inicial
   useEffect(() => {
     setDatos({
       nombre: localStorage.getItem("nombre") || "",
@@ -40,7 +30,6 @@ export default function DatosCliente({
     });
   }, []);
 
-  // (Opcional) Reacciona a cambios de localStorage hechos en otras pestañas
   useEffect(() => {
     const onStorage = (e) => {
       if (!e.key) return;
@@ -55,7 +44,6 @@ export default function DatosCliente({
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
-  // Helper para renderizar una fila
   const Row = ({ label, value }) => (
     <li><strong>{label}:</strong> {value || "—"}</li>
   );

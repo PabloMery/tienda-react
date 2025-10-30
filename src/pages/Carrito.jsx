@@ -18,7 +18,6 @@ export default function Carrito() {
       <h1 className="title">Mi carrito de compras</h1>
 
       <section className="cart">
-        {/* PANEL IZQUIERDO */}
         <div className="panel">
           {!hasItems ? (
             <div className="empty">
@@ -30,7 +29,6 @@ export default function Carrito() {
 
               {totals.detailed.map((row) => (
                 <div className="row" key={row.id}>
-                  {/* Imagen + nombre */}
                   <div className="prodCell">
                     <div className="ph">
                       <img
@@ -47,7 +45,6 @@ export default function Carrito() {
                     </div>
                   </div>
 
-                  {/* Cantidad */}
                   <div className="qtyBox">
                     <button
                       className="button-icon ghost"
@@ -85,13 +82,11 @@ export default function Carrito() {
                     </button>
                   </div>
 
-                  {/* Precios */}
                   <div className="price">{money(row.product.price)}</div>
                   <div className="price">{money(row.line)}</div>
                 </div>
               ))}
 
-              {/* Acciones */}
               <div className="listActions">
 
                 <button className="button danger" onClick={clear}>
@@ -102,7 +97,6 @@ export default function Carrito() {
           )}
         </div>
 
-        {/* PANEL DERECHO: RESUMEN */}
         <aside className="panel summary">
           <div className="sumLine">
             <strong>TOTAL:</strong>

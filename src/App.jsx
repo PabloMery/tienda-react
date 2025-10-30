@@ -83,9 +83,6 @@ export default function App() {
           <Route path="/login" element={<InicioSesion />} />
           <Route path="/blog/detalle/1" element={<BlogDetalle1 />} />
           <Route path="/blog/detalle/2" element={<BlogDetalle2 />} />
-          {/* Auth (si luego las creas) */}
-          {/* <Route path="/login" element={<Login/>} />
-          <Route path="/registro" element={<Registro/>} /> */}
         </Routes>
       </CartProvider>
     </BrowserRouter>

@@ -3,27 +3,34 @@
   --brand:#2563eb; --brand-ink:#fff; --border:#e5e7eb; --ring:#c7d2fe;
   --max:1200px; --radius:14px; --shadow:0 6px 20px rgba(0,0,0,.06);
 
-  /* Nuevos tokens para validación */
+  /* Tokens para validación */
   --ok:#16a34a;        /* verde */
   --ok-ring: rgba(22,163,74,.22);
   --err:#ef4444;       /* rojo */
   --err-ring: rgba(239,68,68,.22);
 }
 
-/* Página registro (scoped) */
-.page-registro { padding: 24px 0 56px; }
+/* ===== Página registro ===== */
+.page-registro {
+  padding: 24px 0 56px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background-color: var(--bg);
+}
 
-/* Contenedor del formulario */
-.registro__container {
+/* ===== Contenedor del formulario ===== */
+.page-registro .registro__container {
+  width: 100%;
   max-width: 520px;
-  margin: 24px auto 0;
+  margin-top: 24px;
   padding: 20px;
-  background-color: #cfcfcf;
+  background-color: #f3f3f3;
   border-radius: 12px;
   box-shadow: var(--shadow);
 }
 
-/* Encabezado */
+/* ===== Encabezado ===== */
 .page-registro .form-header {
   text-align: center;
   margin-bottom: 24px;
@@ -33,11 +40,20 @@
   padding: 8px 0;
 }
 
-.page-registro h1 { color: black; }
+.page-registro h1 {
+  color: #000;
+  margin: 0;
+}
 
-/* Formulario */
-.page-registro .formulario { display: flex; flex-direction: column; }
-.page-registro .form-group { margin-bottom: 16px; }
+/* ===== Formulario ===== */
+.page-registro .formulario {
+  display: flex;
+  flex-direction: column;
+}
+
+.page-registro .form-group {
+  margin-bottom: 16px;
+}
 
 .page-registro label {
   display: block;
@@ -46,7 +62,7 @@
   font-weight: 600;
 }
 
-/* Campos base */
+/* ===== Campos ===== */
 .page-registro input,
 .page-registro select {
   width: 100%;
@@ -58,7 +74,6 @@
   background-color: #fff;
 }
 
-/* Focus por defecto (cuando aún no es válido/erróneo) */
 .page-registro input:focus,
 .page-registro select:focus {
   border-color: var(--brand);
@@ -66,36 +81,32 @@
   box-shadow: 0 0 0 4px var(--ring);
 }
 
-/* === Estados de validación === */
-/* Válido => verde con brillo */
+/* ===== Estados de validación ===== */
 .page-registro input.ok,
 .page-registro select.ok {
   border-color: var(--ok);
   box-shadow: 0 0 0 4px var(--ok-ring);
 }
 
-/* Asegura el mismo estado en focus */
 .page-registro input.ok:focus,
 .page-registro select.ok:focus {
   border-color: var(--ok);
   box-shadow: 0 0 0 4px var(--ok-ring);
 }
 
-/* Inválido => rojo con brillo */
 .page-registro input.error,
 .page-registro select.error {
   border-color: var(--err);
   box-shadow: 0 0 0 4px var(--err-ring);
 }
 
-/* Asegura el mismo estado en focus */
 .page-registro input.error:focus,
 .page-registro select.error:focus {
   border-color: var(--err);
   box-shadow: 0 0 0 4px var(--err-ring);
 }
 
-/* Deshabilitados (por ejemplo, 'comuna' cuando no hay región aún) */
+/* ===== Select deshabilitado ===== */
 .page-registro select:disabled {
   background-color: #f3f4f6;
   color: #9ca3af;
@@ -104,7 +115,7 @@
   box-shadow: none;
 }
 
-/* Botón */
+/* ===== Botón ===== */
 .page-registro .btn-registrar {
   background-color: white;
   color: black;
@@ -114,6 +125,8 @@
   border-radius: 8px;
   cursor: pointer;
   transition: background-color .3s, color .3s, border-color .3s, transform .06s ease;
+  width: 100%;
+  margin-top: 10px;
 }
 
 .page-registro .btn-registrar:hover {
@@ -127,12 +140,24 @@
   transform: translateY(0);
 }
 
-/* Región / Comuna en fila */
-.page-registro .fila { display: flex; gap: 10px; }
-.page-registro .columna { flex: 1; }
+/* ===== Región / Comuna en fila ===== */
+.page-registro .fila {
+  display: flex;
+  gap: 10px;
+}
 
-/* Responsive */
-@media (max-width: 560px){
-  .registro__container { margin-top: 12px; padding: 16px; }
-  .page-registro .fila { flex-direction: column; }
+.page-registro .columna {
+  flex: 1;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 560px) {
+  .page-registro .registro__container {
+    margin-top: 12px;
+    padding: 16px;
+  }
+
+  .page-registro .fila {
+    flex-direction: column;
+  }
 }

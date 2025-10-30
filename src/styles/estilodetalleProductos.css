@@ -232,3 +232,47 @@ button:active {
 button:hover {
   box-shadow: 0 3px 6px rgba(0,0,0,0.2);
 }
+/* ===== BOTÓN DE COMENTARIOS ===== */
+.button-comments {
+  display: inline-block;
+  background-color: #7f1eaf;        /* Azul principal (igual al brand) */
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+  font-size: 1rem;
+}
+
+/* Hover con brillo y ligera elevación */
+.button-comments:hover {
+  background-color: #7f1eaf;       /* Azul un poco más oscuro */
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+  transform: translateY(-2px);
+}
+
+/* Al hacer clic */
+.button-comments:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+}
+
+/* Accesible al teclado (foco) */
+.button-comments:focus {
+  outline: 3px solid #93c5fd;      /* Borde celeste */
+  outline-offset: 3px;
+}
+.p-actions {
+  display: flex;
+  flex-wrap: wrap;          /* Por si se achica el contenedor */
+  gap: 1rem;                /* Espacio entre botones (ajustable) */
+  margin-top: 1.2rem;       /* Separación desde el contenido anterior */
+}
+
+/* Opcional: si quieres que se centren */
+.p-actions {
+  justify-content: flex-start; /* o center */
+}

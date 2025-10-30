@@ -1,125 +1,102 @@
-:root{--bg:#f6f7f9;
-    --card:#fff;
-    --ink:#1f2937;
-    --muted:#6b7280;
-    --brand:#2563eb;
-    --brand-ink:#fff;
-    --border:#e5e7eb;
-    --ring:#c7d2fe;
-    --max:1200px;
-    --radius:14px;
-    --shadow:0 6px 20px rgba(0,0,0,.06)
-}
-*{
-    box-sizing:border-box
-} 
-html,body{
-    height:100%
-} 
-body{
-    margin:0;
-    font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;
-    color:var(--ink);
-    background:var(--bg);
-    line-height:1.55}
+/* ======= PÁGINA NOSOTROS (aislada y con fondo gris claro) ======= */
+.ns-page {
+  --bg:#e5e7eb;        /* fondo general */
+  --card:#ffffff;      /* fondo de tarjetas */
+  --ink:#1f2937;       /* texto principal */
+  --muted:#000000;     /* texto secundario */
+  --brand:#2563eb;     /* azul de acento */
+  --border:#e5e7eb;    /* bordes suaves */
+  --shadow:0 6px 20px rgba(0,0,0,.08);
 
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-a:hover {
-  color: var(--brand);
-}
-
-.wrap {
-  max-width: var(--max);
-  margin: auto;
-  padding: 0 1rem;
-}
-
-.top{background:#e5e7eb; border-bottom:1px solid var(--border)}
-.top__row{display:flex; align-items:center; gap:.75rem; padding:.6rem 0; font-size:.9rem; color:#374151}
-.spacer{flex:1}
-.top__sep{opacity:.4; margin:0 .5rem}
-header{background:#fff; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10}
-.nav{display:flex; align-items:center; gap:1rem; padding:.9rem 0}
-.brand{display:flex; align-items:center; gap:.6rem; font-weight:700}
-.brand__dot{width:.8rem; height:.8rem; border-radius:999px; background:#111}
-.nav__links{display:flex; gap:1rem; flex-wrap:wrap}
-.nav__links a{padding:.35rem .6rem; border-radius:.6rem}
-.nav__links a[aria-current="page"]{background:#f3f4f6}
-.nav__actions{margin-left:auto; display:flex; align-items:center; gap:1rem}
-.cart__badge{background:#111; color:#fff; border-radius:999px; padding:.05rem .45rem; font-size:.78rem}
-
-
-
-
-
-.content{
-  background: var(--card);
+  background-color: var(--bg);
   color: var(--ink);
-  padding: 20px;
-  max-width: 1000px;
-  margin: 1rem auto;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  padding: 2rem 0 3rem;
 }
 
-h2{
-  font-weight: 700;
-  border-bottom: 2px solid var(--border);
-  margin: 0 0 20px;
+/* ======= TÍTULO PRINCIPAL ======= */
+.ns-page .ns-title {
+  text-align: center;
+  font-size: clamp(1.8rem, 3vw, 2.2rem);
+  font-weight: 800;
   color: var(--ink);
+  margin-bottom: 1.5rem;
 }
 
-.profile-card{
-  background: color-mix(in oklab, var(--card) 30%, var(--border));
-  color: var(--ink);
-  padding: 16px;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border);
-}
-
-.profile-img{
-  width: 200px;
-  height: 200px;
-  object-fit: cover;
-  border-radius: 12px;
-  border: 3px solid var(--border);
-  display:block;
-}
-
-.profile-card { min-height: 320px; }
-
-
-
-
-
-.logos img{
-  max-height: 60px;
-  margin: 6px;
-  filter: drop-shadow(0 2px 6px rgba(0,0,0,.08));
-}
-
-p{
+/* ======= PÁRRAFOS ======= */
+.ns-page p {
+  line-height: 1.65;
+  color: var(--muted);
+  margin: 0.75rem 0;
   text-align: justify;
-  color: var(--ink);
 }
 
-.profile-card .btn,
-.content .btn{
-  display:inline-block;
-  border:1px solid var(--brand);
-  background: var(--brand);
-  color: var(--brand-ink);
-  padding:.5rem .9rem;
-  border-radius:.6rem;
-  font-weight:600;
+/* ======= GRID DE INTEGRANTES ======= */
+.ns-page .ns-team {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
 }
-.profile-card .btn:hover,
-.content .btn:hover{
-  filter: brightness(1.05);
+
+/* ======= TARJETA INDIVIDUAL ======= */
+.ns-page .ns-card {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.ns-page .ns-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+}
+
+/* ======= FOTO DE PERFIL ======= */
+.ns-page .ns-img {
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 4px solid var(--brand);
+  margin-bottom: 0.75rem;
+  transition: transform .25s ease;
+}
+
+.ns-page .ns-card:hover .ns-img {
+  transform: scale(1.05);
+}
+
+/* ======= NOMBRE Y ROL ======= */
+.ns-page .ns-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 0.25rem;
+}
+
+.ns-page .ns-role {
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+/* ======= UTILIDADES ======= */
+.ns-page .ns-mt { margin-top: 1.25rem; }
+
+/* ======= RESPONSIVE ======= */
+@media (max-width: 560px) {
+  .ns-page .ns-img {
+    width: 120px;
+    height: 120px;
+  }
+
+  .ns-page .ns-card {
+    padding: 1rem;
+  }
 }

@@ -1,4 +1,3 @@
-@import url('https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css');
 
 :root {
   --bg: #f6f7f9;
@@ -16,6 +15,15 @@
 
 *, *::before, *::after {
   box-sizing: border-box;
+}
+.text-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* centra horizontalmente */
+  justify-content: center; /* centra verticalmente si le das altura */
+  text-align: center;
+  gap: 0.5rem; /* espacio entre el logo y el título */
+  min-height: 200px; /* opcional: ajusta según lo que necesites */
 }
 
 html, body {
@@ -66,7 +74,6 @@ a:hover {
 header {
   background: #fff;
   border-bottom: 1px solid var(--border);
-  position: sticky;
   top: 0;
   z-index: 10;
 }

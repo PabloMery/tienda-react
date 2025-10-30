@@ -16,7 +16,6 @@ a:hover{color:var(--brand)}
 .top__row{display:flex; align-items:center; gap:.75rem; padding:.6rem 0; font-size:.9rem; color:#374151}
 .spacer{flex:1}
 .top__sep{opacity:.4; margin:0 .5rem}
-header{background:#fff; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10}
 .nav{display:flex; align-items:center; gap:1rem; padding:.9rem 0}
 .brand{display:flex; align-items:center; gap:.6rem; font-weight:700}
 .brand__dot{width:.8rem; height:.8rem; border-radius:999px; background:#111}
@@ -77,5 +76,4 @@ header{background:#fff; border-bottom:1px solid var(--border); position:sticky; 
 }
 .help{font-size:.9rem; color:var(--muted)}
 .error{font-size:.9rem; color:#b91c1c}
-.ok{font-size:.9rem; color:#15803d}
 .is-invalid{border-color:#fca5a5 !important; outline-color:#fca5a5}

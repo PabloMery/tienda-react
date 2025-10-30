@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import "../styles/blog.css";
 
 export default function Blog() {
-  // 📰 Datos de los posts (antes estaban en blog.js)
   const POSTS = [
     {
       id: 1,
@@ -11,7 +10,7 @@ export default function Blog() {
       fecha: "2025-09-12",
       resumen:
         "El evento Red Bull Rodando Chile reunió lo mejor del ciclismo urbano en Callampark (La Florida), con competencias en distintas categorías. ¡Conoce al ganador y revive lo mejor de la jornada!",
-      enlace: "/blog/detalle/1", // usa tus rutas React
+      enlace: "/blog/detalle/1", 
       img: "/IMG/Blog/RodandoChileBlog1.avif",
       imgAlt: "Podio del ganador en Red Bull Rodando Chile",
     },
@@ -28,7 +27,6 @@ export default function Blog() {
     },
   ];
 
-  // 📅 Formatear fecha tipo 12/09/2025
   const fmtFecha = (iso) => {
     const d = new Date(iso);
     if (Number.isNaN(d.getTime())) return iso;
@@ -39,7 +37,6 @@ export default function Blog() {
     });
   };
 
-  // 🔁 Ordenar (opcional)
   const postsOrdenados = useMemo(
     () => [...POSTS].sort((a, b) => new Date(b.fecha) - new Date(a.fecha)),
     []
@@ -47,13 +44,11 @@ export default function Blog() {
 
   return (
     <main className="wrap">
-      {/* Hero */}
       <section className="blog-hero">
         <h1>NOTICIAS IMPORTANTES</h1>
         <p className="muted">Últimas novedades y curiosidades de la tienda.</p>
       </section>
 
-      {/* Listado */}
       <section id="blog-list" className="blog-list" aria-label="Listado de noticias">
         {postsOrdenados.map((p) => (
           <article key={p.id} className="post-card">

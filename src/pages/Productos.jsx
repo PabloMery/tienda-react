@@ -1,4 +1,3 @@
-// src/pages/Productos.jsx
 import '../styles/estiloproductos.css';
 import { PRODUCTS } from '../data/products';
 import ProductCard from '../components/ProductCard';

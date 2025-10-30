@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { PRODUCTS } from "../data/products";
 import { useCart } from "../context/CartContext";
 import { money } from "../utils/money";
@@ -7,9 +7,9 @@ import "../styles/estilodetalleProductos.css";
 
 export default function Detalle() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { add } = useCart();
 
-  // ✅ Hooks SIEMPRE antes de cualquier return condicional
   const [activeIdx, setActiveIdx] = useState(0);
   const [qty, setQty] = useState(1);
 
@@ -38,24 +38,23 @@ export default function Detalle() {
     add(p.id, qty);
   };
 
-  // ✅ Ahora el "no encontrado" se renderiza dentro del JSX,
-  //    sin romper el orden de los hooks
+  const handleComentarios = () => {
+    navigate("/comentarios");
+  };
+
   return (
     <main className="wrap">
       {!p ? (
         <p>Producto no encontrado.</p>
       ) : (
         <>
-          {/* Breadcrumb */}
           <nav className="breadcrumb">
             <Link to="/">Home</Link> <span> › </span>
             <Link to="/productos">{p.category}</Link> <span> › </span>
             <span>{p.name}</span>
           </nav>
 
-          {/* Product */}
           <section className="product">
-            {/* Panel izquierdo */}
             <div className="panel left">
               <div id="p-main" className="p-main">
                 <img
@@ -80,7 +79,6 @@ export default function Detalle() {
               </div>
             </div>
 
-            {/* Panel derecho */}
             <div className="panel right">
               <div className="p-title">
                 <h1 id="p-title">{p.name}</h1>
@@ -103,14 +101,18 @@ export default function Detalle() {
                   inputMode="numeric"
                 />
               </div>
+              <div id ="p-actions" className="p-actions">
+                <button id="add-btn2" className="btn2" type="button" onClick={addToCart}>
+                  Añadir al carrito
+                </button>
 
-              <button id="add-btn2" className="btn2" onClick={addToCart}>
-                Añadir al carrito
-              </button>
+                <button id="btn-comentarios" className="button-comments" type="button" onClick={handleComentarios}>
+                  Comentarios del Producto
+                </button>
+              </div>
             </div>
           </section>
 
-          {/* Relacionados */}
           {related.length > 0 && (
             <section className="related">
               <h2>Productos Relacionados</h2>

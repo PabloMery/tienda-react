@@ -1,4 +1,3 @@
-// src/pages/Home.jsx
 import { PRODUCTS } from '../data/products';
 import ProductGrid from '../components/ProductGridHome';
 import '../styles/estiloHome.css';
@@ -27,7 +26,6 @@ export default function Home() {
 
           <div className="hero__media" aria-hidden="true">
             <div className="media__ph">Imagen destacada 16:9</div>
-            {/* o <img src="/IMG/hero.jpg" alt="" loading="lazy" /> */}
           </div>
         </section>
 
@@ -38,7 +36,6 @@ export default function Home() {
         </section>
       </main>
 
-      {/* Footer */}
       <footer>
         <div className="wrap foot">
           <div className="foot__row">

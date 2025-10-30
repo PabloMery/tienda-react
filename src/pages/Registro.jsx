@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import "../styles/Registro.css";
 
 export default function Registro() {
-  // ====== ESTADOS (persisten en localStorage) ======
   const [nombre, setNombre]         = useState(localStorage.getItem("nombre") || "");
   const [correo, setCorreo]         = useState(localStorage.getItem("correo") || "");
   const [contrasena, setContrasena] = useState(localStorage.getItem("contrasena") || "");
@@ -14,8 +13,6 @@ export default function Registro() {
   const [regOk, setRegOk] = useState(false);
 
   const USERS_KEY = "usuarios_v1";
-
-  // ====== MAPA REGIONES/COMUNAS ======
   const comunasPorRegion = {
     "Arica y Parinacota": ["Arica", "Camarones", "General Lagos", "Putre"],
     "Tarapacá": ["Alto Hospicio","Camiña","Colchane","Huara","Iquique","Pica","Pozo Almonte"],
@@ -53,7 +50,6 @@ export default function Registro() {
   const isComunaOk   = !!comuna;
   
 
-  // ====== HELPERS DE USUARIOS ======
   const getUsers = () => {
     try {
       return JSON.parse(localStorage.getItem(USERS_KEY)) || [];
@@ -71,7 +67,6 @@ export default function Registro() {
   };
 
   
-  // ====== HANDLERS ======
   const handleRegionChange = (e) => {
     const value = e.target.value;
     setRegion(value);
@@ -114,7 +109,6 @@ export default function Registro() {
     setRegError("");
   };
 
-  // ====== RENDER ======
   return (
     <main className="wrap page-registro App">
       <div className="registro__container container">

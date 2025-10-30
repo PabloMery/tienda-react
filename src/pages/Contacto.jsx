@@ -3,7 +3,6 @@ import "../styles/contacto.css";
 import logo from "/IMG/logo/logo.png";
 
 function Contacto() {
-  // ================= ESTADOS =================
   const [fullname, setFullname] = useState(localStorage.getItem("fullname") || "");
   const [email, setEmail] = useState(localStorage.getItem("email") || "");
   const [message, setMessage] = useState(localStorage.getItem("message") || "");
@@ -12,14 +11,12 @@ function Contacto() {
   const [errorEmail, setErrorEmail] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  // ================= VALIDAR AL CARGAR =================
   useEffect(() => {
     validateFullname(fullname);
     validateEmail(email);
     validateMessage(message);
-  }, []); // Solo una vez, al montar
+  }, []); 
 
-  // ================= GUARDAR EN localStorage =================
   useEffect(() => {
     localStorage.setItem("fullname", fullname);
   }, [fullname]);
@@ -32,7 +29,6 @@ function Contacto() {
     localStorage.setItem("message", message);
   }, [message]);
 
-  // ================= VALIDACIONES =================
   const validateFullname = (value) => {
     if (value.length > 100) {
       setErrorFullname("El nombre debe tener menos de 100 caracteres.");
@@ -71,7 +67,6 @@ function Contacto() {
     }
   };
 
-  // ================= HANDLERS =================
   const handleFullnameChange = (e) => {
     const value = e.target.value;
     setFullname(value);
@@ -90,19 +85,16 @@ function Contacto() {
     validateMessage(value);
   };
 
-  // ================= SUBMIT =================
   const handleSubmit = (e) => {
     e.preventDefault();
 
     if (!errorFullname && !errorEmail && !errorMessage && fullname && email && message) {
       alert("Formulario enviado correctamente");
 
-      // Limpiar almacenamiento
       localStorage.removeItem("fullname");
       localStorage.removeItem("email");
       localStorage.removeItem("message");
 
-      // Limpiar campos
       setFullname("");
       setEmail("");
       setMessage("");
@@ -115,9 +107,8 @@ function Contacto() {
     <div>
       <main>
         <div className="wrap">
-          <section className="text-center my-4">
+          <section className="text-center">
             <img src={logo} alt="Logo de Tangana" style={{ maxWidth: "220px" }} />
-            <h1 className="h3 h-md1 fw-bold">TANGANA</h1>
           </section>
 
           <section aria-labelledby="contact-title">
@@ -129,7 +120,6 @@ function Contacto() {
               <div className="contact-body">
                 <form onSubmit={handleSubmit} noValidate>
                   
-                  {/* =========== NOMBRE COMPLETO =========== */}
                   <div className="field">
                     <label htmlFor="fullname">NOMBRE COMPLETO</label>
                     <input
@@ -150,7 +140,6 @@ function Contacto() {
                     {errorFullname && <p className="error-text">{errorFullname}</p>}
                   </div>
 
-                  {/* =========== CORREO =========== */}
                   <div className="field">
                     <label htmlFor="email">CORREO</label>
                     <input
@@ -175,7 +164,6 @@ function Contacto() {
                     )}
                   </div>
 
-                  {/* =========== CONTENIDO =========== */}
                   <div className="field">
                     <label htmlFor="message">CONTENIDO</label>
                     <textarea
@@ -195,7 +183,6 @@ function Contacto() {
                     {errorMessage && <p className="error-text">{errorMessage}</p>}
                   </div>
 
-                  {/* =========== BOTÓN =========== */}
                   <div className="btn-row">
                     <button type="submit" className="btn-primary">
                       ENVIAR MENSAJE
