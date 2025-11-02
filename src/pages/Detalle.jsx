@@ -39,8 +39,14 @@ export default function Detalle() {
   };
 
   const handleComentarios = () => {
-    navigate("/comentarios");
+    navigate(`/comentarios?pid=${id}`, {
+      state: {
+        productId: Number(id),
+        productName: p?.name
+      }
+    });
   };
+
 
   return (
     <main className="wrap">
