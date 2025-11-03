@@ -32,7 +32,6 @@ export default function Registro() {
     "Magallanes y de la Antártica Chilena": ["Antártica","Cabo de Hornos","Laguna Blanca","Natales","Porvenir","Primavera","Punta Arenas","Río Verde","San Gregorio","Timaukel","Torres del Paine"]
   };
 
-  // ====== LOCAL STORAGE (autosave por campo) ======
   useEffect(()=>{ localStorage.setItem("nombre", nombre); }, [nombre]);
   useEffect(()=>{ localStorage.setItem("correo", correo); }, [correo]);
   useEffect(()=>{ localStorage.setItem("contrasena", contrasena); }, [contrasena]);
@@ -41,7 +40,6 @@ export default function Registro() {
   useEffect(()=>{ localStorage.setItem("region", region); }, [region]);
   useEffect(()=>{ localStorage.setItem("comuna", comuna); }, [comuna]);
 
-  // ====== VALIDADORES BÁSICOS ======
   const isNombreOk   = nombre.trim().length > 3;
   const isCorreoOk   = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo);
   const isPassOk     = contrasena.length >= 5;
@@ -95,7 +93,7 @@ export default function Registro() {
       id: Date.now(),
       nombre,
       correo: correo.trim(),
-      pass: contrasena, // <- ESTE campo usa el login
+      pass: contrasena, 
       region,
       comuna,
       telefono,
@@ -105,7 +103,6 @@ export default function Registro() {
     setRegOk(true);
     setRegError("");
 
-    // (Opcional) limpiar llaves sueltas para no ensuciar el localStorage
     ["email","fullname","message"].forEach(k => localStorage.removeItem(k));
   };
 

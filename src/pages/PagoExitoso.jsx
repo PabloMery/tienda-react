@@ -1,5 +1,4 @@
-// src/pages/PagoExitoso.jsx
-// src/pages/PagoExitoso.jsx
+
 import "../styles/pagoExitoso.css";
 
 export default function PagoExitoso() {

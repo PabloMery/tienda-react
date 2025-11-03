@@ -22,7 +22,7 @@ export default function InicioSesion() {
   const [errors, setErrors] = useState({ email: "", pass: "" });
   const [isValid, setIsValid] = useState(false);
   const [authMsg, setAuthMsg] = useState("");
-  const [status, setStatus] = useState("idle"); // idle | loading | ok | error
+  const [status, setStatus] = useState("idle"); 
 
   const validateEmail = () => {
     if (!email) return "El correo es requerido.";
@@ -55,7 +55,6 @@ export default function InicioSesion() {
     setAuthMsg("Iniciando sesión...");
 
     const users = getUsers();
-    // Buscar con las mismas llaves que guarda Registro.jsx
     const found = users.find(
       (u) =>
         (u?.correo || "").toLowerCase() === email.toLowerCase() &&
@@ -74,7 +73,6 @@ export default function InicioSesion() {
       found.nombreComercial ??
       "Usuario";
 
-    // Guardar sesión
     localStorage.setItem(
       SESSION_KEY,
       JSON.stringify({
@@ -84,7 +82,6 @@ export default function InicioSesion() {
       })
     );
 
-    // Notificar a la app (mismo tab) que cambió la sesión
     window.dispatchEvent(new Event("session-updated"));
 
     setStatus("ok");
@@ -93,7 +90,6 @@ export default function InicioSesion() {
     setTimeout(() => navigate("/"), 1500);
   };
 
-  // === MISMO HTML/CSS ===
   return (
     <main className="wrap auth">
       <section className="auth__card" aria-labelledby="titulo-login">
