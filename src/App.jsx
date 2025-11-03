@@ -1,3 +1,4 @@
+// App.jsx
 import { BrowserRouter, Routes, Route, NavLink, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { CartProvider, useCart } from "./context/CartContext";
@@ -14,6 +15,7 @@ import InicioSesion from "./pages/InicioSesion";
 import BlogDetalle1 from "./pages/BlogDetalle1";
 import BlogDetalle2 from "./pages/BlogDetalle2";
 import Nosotros from "./pages/Nosotros";
+import PagoExitoso from "./pages/PagoExitoso"
 
 const SESSION_KEY = "session_user";
 function getSessionUser() {
@@ -37,22 +39,17 @@ function CartButton() {
   );
 }
 
-function AppLayout() {
+function Shell() {
   const [sessionUser, setSessionUser] = useState(getSessionUser());
 
   useEffect(() => {
     const refresh = () => setSessionUser(getSessionUser());
 
-    // Cambios desde otras pestañas
     const onStorage = (e) => {
       if (e.key === SESSION_KEY) refresh();
     };
     window.addEventListener("storage", onStorage);
-
-    // Cambios en esta misma pestaña (emitidos por InicioSesion.jsx)
     window.addEventListener("session-updated", refresh);
-
-    // Sync inicial
     refresh();
 
     return () => {
@@ -67,28 +64,17 @@ function AppLayout() {
   };
 
   return (
-    <div className="App">{/* 👈 IMPORTANTE: .App (mayúscula) para tus estilos */}
-      {/* ==== HEADER / TOPBAR ==== */}
-      <div className="topbar">
-        <div className="topbar-left">
-          <span className="welcome">
-            {sessionUser?.nombre
-              ? `Bienvenido, ${sessionUser.nombre}`
-              : "Bienvenido(a)"}
+    <>
+      <nav className="top">
+        <div className="wrap top__row">
+          <span className="muted">
+            {sessionUser?.nombre ? `Bienvenido, ${sessionUser.nombre}` : "Bienvenido(a)"}
           </span>
-        </div>
-
-        <div className="brand">
-          <NavLink to="/" className="brand-link">
-            <span className="dot" /> TANGANA
-          </NavLink>
-        </div>
-
-        <div className="topbar-right">
+          <span className="spacer" />
           {!sessionUser ? (
             <>
               <Link to="/login">Iniciar sesión</Link>
-              <span className="sep"> | </span>
+              <span className="top__sep">|</span>
               <Link to="/registro">Registrar usuario</Link>
             </>
           ) : (
@@ -100,52 +86,55 @@ function AppLayout() {
               Cerrar sesión
             </button>
           )}
-          <span style={{ marginLeft: 12 }}>
-            <CartButton />
-          </span>
         </div>
-      </div>
-
-      {/* ==== NAV ==== */}
-      <nav className="mainnav">
-        <NavLink to="/" end>
-          Home
-        </NavLink>
-        <NavLink to="/productos">Productos</NavLink>
-        <NavLink to="/nosotros">Nosotros</NavLink>
-        <NavLink to="/blog">Blog</NavLink>
-        <NavLink to="/contacto">Contacto</NavLink>
       </nav>
 
-      {/* ==== CONTENIDO ==== */}
-      <div className="content">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/productos" element={<Productos />} />
-          <Route path="/productos/:id" element={<Detalle />} />
-          <Route path="/carrito" element={<Carrito />} />
-          <Route path="/comentarios" element={<Comentarios />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/blog/detalle-1" element={<BlogDetalle1 />} />
-          <Route path="/blog/detalle-2" element={<BlogDetalle2 />} />
-          <Route path="/contacto" element={<Contacto />} />
-          <Route path="/nosotros" element={<Nosotros />} />
-          <Route path="/registro" element={<Registro />} />
-          <Route path="/login" element={<InicioSesion />} />
-          {/* fallback opcional */}
-          <Route path="*" element={<Home />} />
-        </Routes>
-      </div>
-    </div>
+      <header>
+        <div className="wrap nav">
+          <Link className="brand" to="/">
+            <span className="brand__dot" />
+            <span>TANGANA</span>
+          </Link>
+
+          <nav className="nav__links" aria-label="Principal">
+            <NavLink to="/" end>Home</NavLink>
+            <NavLink to="/productos">Productos</NavLink>
+            <NavLink to="/nosotros">Nosotros</NavLink>
+            <NavLink to="/blog">Blog</NavLink>
+            <NavLink to="/contacto">Contacto</NavLink>
+          </nav>
+
+          <div className="nav__links">
+            <CartButton />
+          </div>
+        </div>
+      </header>
+
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/productos" element={<Productos />} />
+        <Route path="/producto/:id" element={<Detalle />} />
+        <Route path="/carrito" element={<Carrito />} />
+        <Route path="/comentarios" element={<Comentarios />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/detalle/1" element={<BlogDetalle1 />} />
+        <Route path="/blog/detalle/2" element={<BlogDetalle2 />} />
+        <Route path="/contacto" element={<Contacto />} />
+        <Route path="/nosotros" element={<Nosotros />} />
+        <Route path="/registro" element={<Registro />} />
+        <Route path="/login" element={<InicioSesion />} />
+        <Route path="/pago-exitoso" element={<PagoExitoso />} />
+      </Routes>
+    </>
   );
 }
 
 export default function App() {
   return (
-    <CartProvider>
-      <BrowserRouter>
-        <AppLayout />
-      </BrowserRouter>
-    </CartProvider>
+    <BrowserRouter>
+      <CartProvider>
+        <Shell />
+      </CartProvider>
+    </BrowserRouter>
   );
 }

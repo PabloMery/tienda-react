@@ -1,16 +1,37 @@
-import { useCart } from '../context/CartContext';
-import { money } from '../utils/money';
-import '../styles/estilocarrito.css';
-import DatosCliente from '../components/DatosCliente';
-import { productMainImage } from '../utils/images';
+// src/pages/Carrito.jsx
+import { useNavigate } from "react-router-dom";
+import { useCart } from "../context/CartContext";
+import { money } from "../utils/money";
+import "../styles/estilocarrito.css";
+import DatosCliente from "../components/DatosCliente";
+import { productMainImage } from "../utils/images";
 
 export default function Carrito() {
-  const { totals, setQty, remove, coupon, setCoupon, clearCoupon, clear } = useCart();
+  const {
+    totals,
+    setQty,
+    remove,
+    coupon,
+    setCoupon,
+    clearCoupon,
+    clear,
+  } = useCart();
+
   const hasItems = totals?.detailed?.length > 0;
+  const navigate = useNavigate();
 
   const onQty = (id, v) => {
     const n = Number(v);
     if (!Number.isNaN(n) && n >= 0) setQty(id, n);
+  };
+
+  const handlePay = () => {
+    if (!hasItems) return;
+    // Limpia cupón y carrito
+    if (clearCoupon) clearCoupon();
+    clear();
+    // Navega en la MISMA pestaña a la confirmación
+    navigate("/pago-exitoso");
   };
 
   return (
@@ -25,8 +46,6 @@ export default function Carrito() {
             </div>
           ) : (
             <div className="list">
-
-
               {totals.detailed.map((row) => (
                 <div className="row" key={row.id}>
                   <div className="prodCell">
@@ -88,7 +107,6 @@ export default function Carrito() {
               ))}
 
               <div className="listActions">
-
                 <button className="button danger" onClick={clear}>
                   Vaciar carrito
                 </button>
@@ -121,21 +139,35 @@ export default function Carrito() {
               onChange={(e) => setCoupon(e.target.value)}
               placeholder="Ingresa cupón de descuento"
             />
-            <button className="button-icon primary" title="Aplicar">
+            <button
+              className="button-icon primary"
+              title="Aplicar"
+              // Si tu lógica aplica el cupón al escribir, este botón puede ser decorativo;
+              // si necesitas acción explícita, puedes llamar aquí a una función de aplicar.
+              onClick={() => {/* opcional: lógica para aplicar cupón */}}
+            >
               ✓
             </button>
           </div>
+
           <div className="listActions">
             <button className="button ghost" onClick={clearCoupon}>
               Limpiar cupón
             </button>
-            <button id="pay" className="button primary" disabled={!hasItems}>
+
+            <button
+              id="pay"
+              className="button primary"
+              disabled={!hasItems}
+              onClick={handlePay}
+            >
               PAGAR
             </button>
           </div>
+
           <DatosCliente
             title="Resumen del cliente"
-            fields={['nombre', 'correo', 'region', 'comuna']}
+            fields={["nombre", "correo", "region", "comuna"]}
             className="datos-cliente"
           />
         </aside>

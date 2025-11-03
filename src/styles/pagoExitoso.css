@@ -1,0 +1,59 @@
+/* ==== Estilos para Pago Exitoso ==== */
+.pago-container {
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 16px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+  padding: 3rem 2rem;
+  margin: 4rem auto;
+  max-width: 600px;
+  text-align: center;
+  animation: fadeInPago 0.6s ease-in-out;
+}
+
+.pago-titulo {
+  font-size: 2rem;
+  color: #2563eb; /* Azul principal coherente con Tangana */
+  margin-bottom: 1rem;
+}
+
+.pago-mensaje {
+  font-size: 1.1rem;
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+
+.pago-detalle {
+  font-size: 0.95rem;
+  color: #4b5563;
+  margin-bottom: 2rem;
+}
+
+.pago-boton {
+  display: inline-block;
+  background: #2563eb;        /* azul Tangana */
+  color: #fff;                /* texto blanco fijo */
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  transition: background 0.3s ease;
+}
+
+.pago-boton:hover {
+  background: #1e40af;        /* azul más oscuro al pasar */
+  color: #fff;                /* 👈 sigue blanco */
+  text-decoration: none;
+}
+
+/* Animación de entrada */
+@keyframes fadeInPago {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
