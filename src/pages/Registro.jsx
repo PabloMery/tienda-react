@@ -32,7 +32,7 @@ export default function Registro() {
     "Magallanes y de la Antártica Chilena": ["Antártica","Cabo de Hornos","Laguna Blanca","Natales","Porvenir","Primavera","Punta Arenas","Río Verde","San Gregorio","Timaukel","Torres del Paine"]
   };
 
-  // ====== LOCAL STORAGE ======
+  // ====== LOCAL STORAGE (autosave por campo) ======
   useEffect(()=>{ localStorage.setItem("nombre", nombre); }, [nombre]);
   useEffect(()=>{ localStorage.setItem("correo", correo); }, [correo]);
   useEffect(()=>{ localStorage.setItem("contrasena", contrasena); }, [contrasena]);
@@ -48,7 +48,6 @@ export default function Registro() {
   const isConfirmOk  = confirmar === contrasena && confirmar !== "";
   const isRegionOk   = !!region;
   const isComunaOk   = !!comuna;
-  
 
   const getUsers = () => {
     try {
@@ -66,7 +65,6 @@ export default function Registro() {
     }
   };
 
-  
   const handleRegionChange = (e) => {
     const value = e.target.value;
     setRegion(value);
@@ -83,7 +81,6 @@ export default function Registro() {
       return;
     }
 
-
     const users = getUsers();
     const exists = users.some(
       (u) => (u.correo || "").toLowerCase() === correo.toLowerCase()
@@ -98,7 +95,7 @@ export default function Registro() {
       id: Date.now(),
       nombre,
       correo: correo.trim(),
-      pass: contrasena,
+      pass: contrasena, // <- ESTE campo usa el login
       region,
       comuna,
       telefono,
@@ -107,6 +104,9 @@ export default function Registro() {
     saveUsers([...users, nuevo]);
     setRegOk(true);
     setRegError("");
+
+    // (Opcional) limpiar llaves sueltas para no ensuciar el localStorage
+    ["email","fullname","message"].forEach(k => localStorage.removeItem(k));
   };
 
   return (
@@ -225,7 +225,7 @@ export default function Registro() {
             <p className="ok" style={{ marginTop: 12 }}>
               Registro guardado correctamente ✅
             </p>
-          )}        
+          )}
         </form>
       </div>
     </main>

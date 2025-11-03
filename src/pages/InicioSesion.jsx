@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/inicioSesion.css";
 
 const EMAIL_RX = /^[^\s@]+@(duoc\.cl|profesor\.duoc\.cl|gmail\.com)$/i;
@@ -14,11 +15,14 @@ const getUsers = () => {
 };
 
 export default function InicioSesion() {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({ email: "", pass: "" });
   const [isValid, setIsValid] = useState(false);
   const [authMsg, setAuthMsg] = useState("");
+  const [status, setStatus] = useState("idle"); // idle | loading | ok | error
 
   const validateEmail = () => {
     if (!email) return "El correo es requerido.";
@@ -47,35 +51,49 @@ export default function InicioSesion() {
     e.preventDefault();
     if (!isValid) return;
 
+    setStatus("loading");
+    setAuthMsg("Iniciando sesión...");
+
     const users = getUsers();
-    const user = users.find(
-      (u) => (u.correo || "").toLowerCase() === email.toLowerCase()
+    // Buscar con las mismas llaves que guarda Registro.jsx
+    const found = users.find(
+      (u) =>
+        (u?.correo || "").toLowerCase() === email.toLowerCase() &&
+        String(u?.pass) === String(pass)
     );
 
-    if (!user) {
-      setAuthMsg("Usuario no registrado.");
+    if (!found) {
+      setStatus("error");
+      setAuthMsg("Credenciales inválidas ❌");
       return;
     }
 
-    if (user.pass !== pass) {
-      setAuthMsg("Contraseña incorrecta.");
-      return;
-    }
+    const nombre =
+      found.nombre ??
+      found.nombreCompleto ??
+      found.nombreComercial ??
+      "Usuario";
 
-    try {
-      localStorage.setItem(
-        SESSION_KEY,
-        JSON.stringify({
-          correo: user.correo,
-          nombre: user.nombre,
-          loginAt: Date.now(),
-        })
-      );
-    } catch {""}
+    // Guardar sesión
+    localStorage.setItem(
+      SESSION_KEY,
+      JSON.stringify({
+        id: found.id ?? null,
+        nombre,
+        email: found.correo,
+      })
+    );
 
-    setAuthMsg("Inicio de sesión exitoso ✅");
+    // Notificar a la app (mismo tab) que cambió la sesión
+    window.dispatchEvent(new Event("session-updated"));
+
+    setStatus("ok");
+    setAuthMsg("Inicio de sesión exitoso ✅ Redirigiendo...");
+
+    setTimeout(() => navigate("/"), 1500);
   };
 
+  // === MISMO HTML/CSS ===
   return (
     <main className="wrap auth">
       <section className="auth__card" aria-labelledby="titulo-login">
@@ -120,7 +138,7 @@ export default function InicioSesion() {
           {authMsg && (
             <div
               className={`auth-msg ${
-                /exitoso|✅/i.test(authMsg) ? "ok" : "error"
+                status === "ok" ? "ok" : status === "error" ? "error" : ""
               }`}
               style={{ marginTop: 8 }}
             >
@@ -129,8 +147,12 @@ export default function InicioSesion() {
           )}
 
           <div className="row-btns">
-            <button type="submit" className="btn-primary" disabled={!isValid}>
-              Iniciar sesión
+            <button
+              type="submit"
+              className="btn-primary"
+              disabled={!isValid || status === "loading"}
+            >
+              {status === "loading" ? "Ingresando..." : "Iniciar sesión"}
             </button>
           </div>
         </form>
