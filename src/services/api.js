@@ -61,3 +61,49 @@ export const deleteProducto = async (id) => {
   return await axios.delete(`${API_URL}/productos/${id}`);
 };
 */
+
+
+
+
+
+
+
+
+
+// src/services/api.js
+
+// ... (aquí arriba están las funciones existentes como getProductos) ...
+
+// --- NUEVOS SERVICIOS DE USUARIOS ---
+
+/**
+ * Registra un nuevo usuario enviando los datos al backend.
+ */
+export const registrarUsuario = async (datosUsuario) => {
+  try {
+    const response = await axios.post(`${API_URL}/usuarios`, datosUsuario);
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.status === 409) {
+      throw new Error("El correo electrónico ya está registrado.");
+    }
+    console.error("Error al registrar usuario:", error);
+    throw new Error("No se pudo completar el registro. Inténtalo más tarde.");
+  }
+};
+
+/**
+ * Valida las credenciales de un usuario contra el backend.
+ */
+export const iniciarSesion = async (credenciales) => {
+  try {
+    const response = await axios.post(`${API_URL}/usuarios/login`, credenciales);
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.status === 401) {
+      throw new Error("Correo o contraseña incorrectos.");
+    }
+    console.error("Error al iniciar sesión:", error);
+    throw new Error("Error en el servidor al intentar iniciar sesión.");
+  }
+};

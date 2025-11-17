@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+// --- INICIO DE LA MODIFICACIÓN (1/3): Se añade la importación de la API ---
+import { iniciarSesion } from "../services/api";
 import "../styles/inicioSesion.css";
 
 const EMAIL_RX = /^[^\s@]+@(duoc\.cl|profesor\.duoc\.cl|gmail\.com)$/i;
-const USERS_KEY = "usuarios_v1";
+// --- INICIO DE LA MODIFICACIÓN (2/3): Se eliminan estas constantes y funciones ---
+// const USERS_KEY = "usuarios_v1"; // Ya no se necesita
 const SESSION_KEY = "session_user";
 
-const getUsers = () => {
-  try {
-    return JSON.parse(localStorage.getItem(USERS_KEY)) || [];
-  } catch {
-    return [];
-  }
-};
+// La función getUsers() ya no es necesaria porque la validación se hace en el backend
+// const getUsers = () => { ... };
 
 export default function InicioSesion() {
   const navigate = useNavigate();
@@ -47,50 +45,46 @@ export default function InicioSesion() {
     setAuthMsg("");
   }, [email, pass]);
 
-  const handleSubmit = (e) => {
+  // --- INICIO DE LA MODIFICACIÓN (3/3): Se reemplaza la función handleSubmit ---
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isValid) return;
 
     setStatus("loading");
     setAuthMsg("Iniciando sesión...");
 
-    const users = getUsers();
-    const found = users.find(
-      (u) =>
-        (u?.correo || "").toLowerCase() === email.toLowerCase() &&
-        String(u?.pass) === String(pass)
-    );
+    try {
+      // 1. Llama a la API con las credenciales para que las valide en el backend
+      const usuarioLogueado = await iniciarSesion({ correo: email, pass });
 
-    if (!found) {
+      // 2. Si la API responde exitosamente, guarda la sesión del usuario
+      //    con los datos que devolvió el servidor.
+      localStorage.setItem(
+        SESSION_KEY,
+        JSON.stringify({
+          id: usuarioLogueado.id,
+          nombre: usuarioLogueado.nombre,
+          email: usuarioLogueado.correo,
+        })
+      );
+
+      window.dispatchEvent(new Event("session-updated"));
+
+      setStatus("ok");
+      setAuthMsg("Inicio de sesión exitoso ✅ Redirigiendo...");
+
+      setTimeout(() => navigate("/"), 1500);
+
+    } catch (error) {
+      // 3. Si la API devuelve un error (ej: 401 Unauthorized),
+      //    se muestra el mensaje de error que definimos en api.js.
       setStatus("error");
-      setAuthMsg("Credenciales inválidas ❌");
-      return;
+      setAuthMsg(`${error.message} ❌`);
     }
-
-    const nombre =
-      found.nombre ??
-      found.nombreCompleto ??
-      found.nombreComercial ??
-      "Usuario";
-
-    localStorage.setItem(
-      SESSION_KEY,
-      JSON.stringify({
-        id: found.id ?? null,
-        nombre,
-        email: found.correo,
-      })
-    );
-
-    window.dispatchEvent(new Event("session-updated"));
-
-    setStatus("ok");
-    setAuthMsg("Inicio de sesión exitoso ✅ Redirigiendo...");
-
-    setTimeout(() => navigate("/"), 1500);
   };
 
   return (
+    // El JSX del return no necesita ningún cambio
     <main className="wrap auth">
       <section className="auth__card" aria-labelledby="titulo-login">
         <div className="auth__head">
