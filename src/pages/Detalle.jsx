@@ -1,6 +1,7 @@
-import { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from 'react'; // <-- Hooks
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { PRODUCTS } from "../data/products";
+// import { PRODUCTS } from "../data/products"; // <-- ELIMINAMOS
+import { getProductoById, getProductos } from '../services/api'; // <-- IMPORTAMOS API
 import { useCart } from "../context/CartContext";
 import { money } from "../utils/money";
 import "../styles/estilodetalleProductos.css";
@@ -10,23 +11,47 @@ export default function Detalle() {
   const navigate = useNavigate();
   const { add } = useCart();
 
+  const [p, setProducto] = useState(null); // Estado para el producto
+  const [related, setRelated] = useState([]); // Estado para relacionados
+  const [cargando, setCargando] = useState(true);
+
   const [activeIdx, setActiveIdx] = useState(0);
   const [qty, setQty] = useState(1);
 
-  const p = useMemo(() => PRODUCTS.find(x => x.id === Number(id)), [id]);
+  // useEffect para cargar los datos del producto actual y sus relacionados
+  useEffect(() => {
+    const cargarDatos = async () => {
+      setCargando(true);
+      
+      // 1. Pedimos el producto principal a la API
+      const producto = await getProductoById(id);
+      setProducto(producto);
+      setActiveIdx(0);
 
+      // 2. Si el producto existe, buscamos relacionados
+      if (producto) {
+        // (Idealmente, esto usaría: getProductosPorCategoria(producto.category))
+        // Por ahora, traemos todos y filtramos en el frontend:
+        const todos = await getProductos();
+        const relacionados = todos
+          .filter(x => x.category === producto.category && x.id !== producto.id)
+          .slice(0, 4);
+        setRelated(relacionados);
+      }
+      
+      setCargando(false);
+    };
+
+    cargarDatos();
+  }, [id]); // Se ejecuta de nuevo si el ID de la URL cambia
+
+  // Esta función no cambia, solo depende del estado 'p'
   const images = useMemo(() => {
     if (!p) return ["/IMG/placeholder.jpg"];
     return (p.images && p.images.length > 0) ? p.images : ["/IMG/placeholder.jpg"];
   }, [p]);
 
-  const related = useMemo(() => {
-    if (!p) return [];
-    return PRODUCTS
-      .filter(x => x.category === p.category && x.id !== p.id)
-      .slice(0, 4);
-  }, [p]);
-
+  // Estas funciones no cambian
   const onChangeQty = (e) => {
     const v = Number(e.target.value);
     if (Number.isNaN(v)) return;
@@ -47,7 +72,11 @@ export default function Detalle() {
     });
   };
 
+  if (cargando) {
+    return <main className="wrap"><p style={{textAlign: 'center'}}>Cargando producto...</p></main>;
+  }
 
+  // Tu JSX/HTML no necesita casi ningún cambio
   return (
     <main className="wrap">
       {!p ? (

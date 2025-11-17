@@ -1,47 +1,51 @@
 import axios from 'axios';
 
-// La URL base de tu backend Spring Boot
+// 1. La URL base de tu API de Spring Boot
 const API_URL = 'http://localhost:8080/api';
 
 /**
- * Obtiene la lista completa de productos desde el backend.
- * (Usado en Home.jsx, Productos.jsx y CartContext.jsx)
+ * Función para obtener TODOS los productos.
+ * (La usaremos en Home.jsx y Productos.jsx)
  */
 export const getProductos = async () => {
   try {
+    // Hacemos un GET a http://localhost:8080/api/productos
     const response = await axios.get(`${API_URL}/productos`);
-    return response.data;
+    return response.data; // Devolvemos el array de productos
   } catch (error) {
     console.error("Error al obtener productos:", error);
-    // Si falla (ej: backend apagado), devuelve un array vacío
-    // para que la tienda no se rompa.
+    // Si el backend está apagado o falla, devolvemos un array vacío
+    // para que el frontend no se rompa.
     return []; 
   }
 };
 
 /**
- * Obtiene un solo producto por su ID.
- * (Usado en Detalle.jsx)
+ * Función para obtener UN producto por su ID.
+ * (La usaremos en Detalle.jsx)
  */
 export const getProductoById = async (id) => {
   try {
+    // Hacemos un GET a http://localhost:8080/api/productos/1 (o el id que sea)
     const response = await axios.get(`${API_URL}/productos/${id}`);
-    return response.data;
+    return response.data; // Devolvemos el objeto del producto
   } catch (error) {
-    console.error(`Error al obtener producto ${id}:`, error);
-    return null; // Devuelve null si no lo encuentra o hay error
+    console.error(`Error al obtener el producto ${id}:`, error);
+    return null; // Devolvemos null si no lo encuentra
   }
 };
 
 /**
- * Obtiene productos filtrados por categoría.
- * (No lo hemos implementado aún en el frontend, pero lo dejamos listo)
+ * Función para obtener productos por categoría.
+ * (La usaremos si creamos una vista de categorías)
  */
 export const getProductosPorCategoria = async (categoria) => {
     try {
-        // Apunta a tu endpoint: /api/productos/buscar?categoria=BMX
+        // Hacemos un GET a http://localhost:8080/api/productos/buscar?categoria=BMX
         const response = await axios.get(`${API_URL}/productos/buscar`, {
-            params: { categoria: categoria }
+            params: { 
+              categoria: categoria // Axios lo formatea como ?categoria=BMX
+            }
         });
         return response.data;
     } catch (error) {
@@ -50,9 +54,10 @@ export const getProductosPorCategoria = async (categoria) => {
     }
 };
 
-// --- Métodos del CRUD que usaremos en el futuro (ej: admin) ---
-
 /*
+// Aquí podemos dejar listos los otros métodos del CRUD para el futuro
+// (para un panel de administrador, por ejemplo)
+
 export const updateProducto = async (id, productoData) => {
   return await axios.put(`${API_URL}/productos/${id}`, productoData);
 };
@@ -60,9 +65,11 @@ export const updateProducto = async (id, productoData) => {
 export const deleteProducto = async (id) => {
   return await axios.delete(`${API_URL}/productos/${id}`);
 };
+
+export const createProducto = async (productoData) => {
+  return await axios.post(`${API_URL}/productos`, productoData);
+};
 */
-
-
 
 
 

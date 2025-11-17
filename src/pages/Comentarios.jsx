@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams, useLocation, useParams, useNavigate } from "react-router-dom";
-import { PRODUCTS } from "../data/products";
+// import { PRODUCTS } from "../data/products"; // <-- 1. ELIMINAMOS
+import { getProductos } from "../services/api"; // <-- 2. IMPORTAMOS API
 import "../styles/estilocomentarios.css";
 
 const CMT_KEY = "comments_v1";
 
-/* ===== Helpers de almacenamiento ===== */
+/* ===== Helpers de almacenamiento (no cambian) ===== */
 function readComments() {
   try {
     return JSON.parse(localStorage.getItem(CMT_KEY)) ?? [];
@@ -19,7 +20,7 @@ function saveComments(arr) {
   } catch { "" }
 }
 
-/* ===== Usuario “registrado” (localStorage) ===== */
+/* ===== Usuario “registrado” (no cambia) ===== */
 function getUser() {
   const nombre = localStorage.getItem("nombre");
   const correo = localStorage.getItem("correo");
@@ -27,77 +28,106 @@ function getUser() {
   return null;
 }
 
-/* ===== UI auxiliar ===== */
+/* ===== UI auxiliar (no cambia) ===== */
 function renderStars(n) {
   return "★".repeat(n) + "☆".repeat(5 - n);
 }
 
-/* ===== Normalización de PID ===== */
-function normalizePid(raw) {
+/* ===== 3. MODIFICADO: Normalización de PID ===== */
+// Ahora necesita la lista de productos para poder validar
+function normalizePid(raw, list) {
   const n = Number(raw);
-  return Number.isInteger(n) && PRODUCTS.some((p) => p.id === n) ? n : null;
+  // No podemos normalizar si la lista de la API aún no ha llegado
+  if (list.length === 0) return null; 
+  return Number.isInteger(n) && list.some((p) => p.id === n) ? n : null;
 }
 
 export default function Comentarios() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const location = useLocation();
-  const params = useParams(); // por si usas /comentarios/:id
+  const params = useParams(); 
 
-  // Fuentes de productId (prioridad: state → query → param → fallback)
-  const pidFromState = location.state?.productId;
-  const pidFromQS = searchParams.get("pid");
-  const pidFromParam = params.id;
-
-  const initialPid =
-    normalizePid(pidFromState) ??
-    normalizePid(pidFromQS) ??
-    normalizePid(pidFromParam) ??
-    (PRODUCTS[0]?.id ?? 1);
-
-  /* ===== Estados ===== */
+  /* ===== 4. Estados Modificados ===== */
   const [comments, setComments] = useState(readComments);
-  const [productId, setProductId] = useState(initialPid);
+  
+  // Estados para la carga de productos de la API
+  const [productList, setProductList] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  
+  // El ID del producto se setea después de cargar la lista
+  const [productId, setProductId] = useState(null); 
+  
   const [stars, setStars] = useState(5);
   const [text, setText] = useState("");
   const [user, setUser] = useState(getUser());
 
-  /* ===== Persistir comentarios ===== */
+  /* ===== 5. NUEVO: useEffect para cargar productos de la API ===== */
+  useEffect(() => {
+    const loadData = async () => {
+      const products = await getProductos(); // Llamamos a la API
+      setProductList(products); // Guardamos la lista
+
+      // Una vez tenemos la lista, determinamos el ID inicial
+      const pidFromState = location.state?.productId;
+      const pidFromQS = searchParams.get("pid");
+      const pidFromParam = params.id;
+
+      // Validamos el ID contra la lista de productos real
+      const initial =
+        normalizePid(pidFromState, products) ??
+        normalizePid(pidFromQS, products) ??
+        normalizePid(pidFromParam, products) ??
+        (products[0]?.id ?? null); // Default al primer producto de la API
+
+      setProductId(initial);
+      setCargando(false);
+    };
+    loadData();
+    // Usamos dependencias mínimas para que solo se ejecute al cargar
+  }, [location.state, params.id, searchParams]); 
+
+  /* ===== Persistir comentarios (no cambia) ===== */
   useEffect(() => {
     saveComments(comments);
   }, [comments]);
 
-  /* ===== Escuchar cambios de login/registro en otras pestañas ===== */
+  /* ===== Escuchar cambios de login (no cambia) ===== */
   useEffect(() => {
     const updateUser = () => setUser(getUser());
     window.addEventListener("storage", updateUser);
     return () => window.removeEventListener("storage", updateUser);
   }, []);
 
-  /* ===== Corregir URL si pid es inválido o no coincide con el estado ===== */
+  /* ===== 6. Corregir URL (MODIFICADO para usar productList) ===== */
   useEffect(() => {
-    const valid = normalizePid(searchParams.get("pid"));
+    // No hacer nada si aún estamos cargando o no hay ID
+    if (cargando || productId === null) return;
+
+    const valid = normalizePid(searchParams.get("pid"), productList);
+    
+    // Si la URL no tiene ?pid= o es inválido, lo corregimos
     if (valid === null || valid !== productId) {
       navigate(`/comentarios?pid=${productId}`, {
         replace: true,
         state: {
           productId,
           productName:
-            PRODUCTS.find((p) => p.id === productId)?.name ??
+            productList.find((p) => p.id === productId)?.name ?? // <-- Usamos productList
             location.state?.productName,
         },
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [productId]);
+  }, [productId, productList, navigate, searchParams, location.state, cargando]);
 
-  /* ===== Lista filtrada por producto ===== */
+  /* ===== Lista filtrada (no cambia) ===== */
   const list = useMemo(
     () => comments.filter((c) => c.productId === Number(productId)),
     [comments, productId]
   );
 
-  /* ===== Acciones ===== */
+  /* ===== Acciones (no cambian) ===== */
   function addComment() {
     if (!user) return alert("Debes estar registrado para comentar");
     if (!text.trim()) return;
@@ -123,9 +153,24 @@ export default function Comentarios() {
     setComments(comments.filter((c) => c.productId !== Number(productId)));
   }
 
-  const selected = PRODUCTS.find((p) => p.id === Number(productId));
+  /* ===== 7. 'selected' usa useMemo y productList ===== */
+  const selected = useMemo(() => {
+     if (!productId) return null;
+     return productList.find((p) => p.id === Number(productId));
+  }, [productId, productList]);
 
-  /* ===== Render ===== */
+  
+  /* ===== 8. NUEVO: Estado de carga ===== */
+  if (cargando) {
+    return (
+      <main className="cmt" id="cmt">
+        <h1 className="cmt__title">Comentarios</h1>
+        <p style={{ textAlign: 'center' }}>Cargando productos...</p>
+      </main>
+    );
+  }
+
+  /* ===== 9. Render (MODIFICADO el select y el texto 'empty') ===== */
   return (
     <main className="cmt" id="cmt">
       <h1 className="cmt__title">Comentarios</h1>
@@ -135,7 +180,7 @@ export default function Comentarios() {
         <label htmlFor="productSelect">Producto:</label>
         <select
           id="productSelect"
-          value={productId}
+          value={productId ?? ''} // Manejamos el estado inicial null
           onChange={(e) => {
             const next = Number(e.target.value);
             setProductId(next);
@@ -146,13 +191,14 @@ export default function Comentarios() {
               state: {
                 productId: next,
                 productName:
-                  PRODUCTS.find((p) => p.id === next)?.name ??
+                  productList.find((p) => p.id === next)?.name ?? // <-- Usamos productList
                   location.state?.productName,
               },
             });
           }}
         >
-          {PRODUCTS.map((p) => (
+          {/* Mapeamos productList en lugar de PRODUCTS */}
+          {productList.map((p) => (
             <option key={p.id} value={p.id}>
               {p.name}
             </option>
@@ -171,7 +217,7 @@ export default function Comentarios() {
         </div>
       </div>
 
-      {/* Formulario si hay usuario */}
+      {/* Formulario si hay usuario (no cambia) */}
       {user ? (
         <div className="cmt__form">
           <input
@@ -191,10 +237,11 @@ export default function Comentarios() {
         </div>
       )}
 
-      {/* Lista de comentarios */}
+      {/* Lista de comentarios (no cambia) */}
       <ul className="cmt__list">
         {list.length === 0 ? (
           <p className="cmt__empty">
+            {/* Usamos el 'selected' basado en la API */}
             Aún no hay comentarios para <strong>{selected?.name}</strong>.
           </p>
         ) : (

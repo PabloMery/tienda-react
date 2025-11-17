@@ -1,10 +1,24 @@
-import { PRODUCTS } from '../data/products';
+import React, { useState, useEffect, useCallback } from 'react'; // <-- 1. Importamos hooks
+// import { PRODUCTS } from '../data/products'; // <-- 2. ELIMINAMOS esta línea
+import { getProductos } from '../services/api'; // <-- 3. Importamos nuestra API
 import ProductGrid from '../components/ProductGridHome';
 import '../styles/estiloHome.css';
-import { useCallback } from 'react';
 import { Link } from 'react-router-dom';
 
 export default function Home() {
+  // 4. Creamos estado para los productos
+  const [productos, setProductos] = useState([]);
+
+  // 5. useEffect para cargar los datos
+  useEffect(() => {
+    const cargarProductos = async () => {
+      const data = await getProductos(); // Llama a nuestra api.js
+      setProductos(data); // Rellena el estado
+    };
+
+    cargarProductos();
+  }, []);
+
   const handleSubscribe = useCallback((e) => {
     e.preventDefault();
     alert('¡Gracias por suscribirte!');
@@ -31,8 +45,8 @@ export default function Home() {
 
 
         <section className="section" id="productos" aria-labelledby="titulo-prods">
-
-          <ProductGrid products={PRODUCTS} />
+          {/* 6. Pasamos los productos del estado (de la API) al componente grid */}
+          <ProductGrid products={productos} />
         </section>
       </main>
 
