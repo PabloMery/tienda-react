@@ -19,10 +19,7 @@ export default function Home() {
     cargarProductos();
   }, []);
 
-  const handleSubscribe = useCallback((e) => {
-    e.preventDefault();
-    alert('¡Gracias por suscribirte!');
-  }, []);
+
 
   return (
     <>
@@ -50,24 +47,6 @@ export default function Home() {
         </section>
       </main>
 
-      <footer>
-        <div className="wrap foot">
-          <div className="foot__row">
-            <strong>TANGANA</strong>
-            <span className="spacer" />
-            <a href="#">Category 1</a>
-            <a href="#">Category 2</a>
-            <a href="#">Category 3</a>
-          </div>
-          <div className="foot__row">
-            <form onSubmit={handleSubscribe}>
-              <label htmlFor="email" className="visually-hidden">Correo</label>
-              <input id="email" type="email" placeholder="Ingresa tu correo" required />
-              <button type="submit">Suscribirse</button>
-            </form>
-          </div>
-        </div>
-      </footer>
     </>
   );
 }

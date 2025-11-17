@@ -2,49 +2,40 @@ import axios from 'axios';
 
 // 1. La URL base de tu API de Spring Boot
 const API_URL = 'http://localhost:8080/api';
+const API_URL2 = 'http://localhost:8081/api';
 
-/**
- * Función para obtener TODOS los productos.
- * (La usaremos en Home.jsx y Productos.jsx)
- */
+
 export const getProductos = async () => {
   try {
-    // Hacemos un GET a http://localhost:8080/api/productos
+
     const response = await axios.get(`${API_URL}/productos`);
-    return response.data; // Devolvemos el array de productos
+    return response.data;
   } catch (error) {
     console.error("Error al obtener productos:", error);
-    // Si el backend está apagado o falla, devolvemos un array vacío
-    // para que el frontend no se rompa.
+
     return []; 
   }
 };
 
-/**
- * Función para obtener UN producto por su ID.
- * (La usaremos en Detalle.jsx)
- */
+
 export const getProductoById = async (id) => {
   try {
-    // Hacemos un GET a http://localhost:8080/api/productos/1 (o el id que sea)
+
     const response = await axios.get(`${API_URL}/productos/${id}`);
-    return response.data; // Devolvemos el objeto del producto
+    return response.data;
   } catch (error) {
     console.error(`Error al obtener el producto ${id}:`, error);
-    return null; // Devolvemos null si no lo encuentra
+    return null; 
   }
 };
 
-/**
- * Función para obtener productos por categoría.
- * (La usaremos si creamos una vista de categorías)
- */
+
 export const getProductosPorCategoria = async (categoria) => {
     try {
-        // Hacemos un GET a http://localhost:8080/api/productos/buscar?categoria=BMX
+       
         const response = await axios.get(`${API_URL}/productos/buscar`, {
             params: { 
-              categoria: categoria // Axios lo formatea como ?categoria=BMX
+              categoria: categoria
             }
         });
         return response.data;
@@ -54,23 +45,25 @@ export const getProductosPorCategoria = async (categoria) => {
     }
 };
 
-/*
-// Aquí podemos dejar listos los otros métodos del CRUD para el futuro
-// (para un panel de administrador, por ejemplo)
-
-export const updateProducto = async (id, productoData) => {
-  return await axios.put(`${API_URL}/productos/${id}`, productoData);
-};
-
-export const deleteProducto = async (id) => {
-  return await axios.delete(`${API_URL}/productos/${id}`);
-};
-
+/**
+ * ¡FUNCIÓN NUEVA!
+ * Envía un nuevo producto al backend.
+  @param {object} productoData - Los datos del producto desde el formulario.
+ */
 export const createProducto = async (productoData) => {
-  return await axios.post(`${API_URL}/productos`, productoData);
+  try {
+    // Usamos POST a /api/productos, como probamos en Postman
+    const response = await axios.post(`${API_URL}/productos`, productoData);
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error("Error al crear el producto:", error.response);
+    
+    // Aquí devolvemos el mensaje de error de validación del backend
+    // (Ej: "El nombre no puede estar vacío")
+    const errorMessage = error.response?.data || "Error desconocido al crear el producto.";
+    return { success: false, error: errorMessage };
+  }
 };
-*/
-
 
 
 
@@ -88,7 +81,7 @@ export const createProducto = async (productoData) => {
  */
 export const registrarUsuario = async (datosUsuario) => {
   try {
-    const response = await axios.post(`${API_URL}/usuarios`, datosUsuario);
+    const response = await axios.post(`${API_URL2}/usuarios`, datosUsuario);
     return response.data;
   } catch (error) {
     if (error.response && error.response.status === 409) {
@@ -104,7 +97,7 @@ export const registrarUsuario = async (datosUsuario) => {
  */
 export const iniciarSesion = async (credenciales) => {
   try {
-    const response = await axios.post(`${API_URL}/usuarios/login`, credenciales);
+    const response = await axios.post(`${API_URL2}/usuarios/login`, credenciales);
     return response.data;
   } catch (error) {
     if (error.response && error.response.status === 401) {

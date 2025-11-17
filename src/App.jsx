@@ -1,5 +1,5 @@
 // App.jsx
-import { BrowserRouter, Routes, Route, NavLink, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route, NavLink, Link, Outlet } from "react-router-dom"; // Asegúrate de importar Outlet
 import { useEffect, useState } from "react";
 import { CartProvider, useCart } from "./context/CartContext";
 
@@ -16,6 +16,8 @@ import BlogDetalle1 from "./pages/BlogDetalle1";
 import BlogDetalle2 from "./pages/BlogDetalle2";
 import Nosotros from "./pages/Nosotros";
 import PagoExitoso from "./pages/PagoExitoso"
+import AgregarProducto from "./pages/AgregarProducto";
+import Footer from "./components/Footer";
 
 const SESSION_KEY = "session_user";
 function getSessionUser() {
@@ -60,7 +62,8 @@ function Shell() {
 
   const handleLogout = () => {
     localStorage.removeItem(SESSION_KEY);
-    setSessionUser(null);
+    // Disparamos el evento para que el estado se actualice en tiempo real
+    window.dispatchEvent(new Event("session-updated")); 
   };
 
   return (
@@ -81,7 +84,7 @@ function Shell() {
             <button
               className="btn-link"
               onClick={handleLogout}
-              style={{ background: "none", border: "none", cursor: "pointer" }}
+              style={{ background: "none", border: "none", cursor: "pointer", color: "white" }}
             >
               Cerrar sesión
             </button>
@@ -102,6 +105,11 @@ function Shell() {
             <NavLink to="/nosotros">Nosotros</NavLink>
             <NavLink to="/blog">Blog</NavLink>
             <NavLink to="/contacto">Contacto</NavLink>
+            {sessionUser && sessionUser.id === 1 && (
+              <NavLink to="/admin/agregar" style={{ color: 'aqua' }}>
+                Agregar (Admin)
+              </NavLink>
+            )}
           </nav>
 
           <div className="nav__links">
@@ -109,22 +117,11 @@ function Shell() {
           </div>
         </div>
       </header>
-
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/productos" element={<Productos />} />
-        <Route path="/producto/:id" element={<Detalle />} />
-        <Route path="/carrito" element={<Carrito />} />
-        <Route path="/comentarios" element={<Comentarios />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/blog/detalle/1" element={<BlogDetalle1 />} />
-        <Route path="/blog/detalle/2" element={<BlogDetalle2 />} />
-        <Route path="/contacto" element={<Contacto />} />
-        <Route path="/nosotros" element={<Nosotros />} />
-        <Route path="/registro" element={<Registro />} />
-        <Route path="/login" element={<InicioSesion />} />
-        <Route path="/pago-exitoso" element={<PagoExitoso />} />
-      </Routes>
+      
+      {/* Usamos <Outlet> para renderizar las rutas anidadas (Home, Productos, etc.)
+        Esto corrige la estructura que tenías en tu App.jsx original.
+      */}
+      <Outlet />
     </>
   );
 }
@@ -133,8 +130,36 @@ export default function App() {
   return (
     <BrowserRouter>
       <CartProvider>
-        <Shell />
+
+        <Routes>
+          <Route path="/" element={<Shell />}>
+            <Route index element={<Home />} />
+            <Route path="productos" element={<Productos />} />
+            <Route path="producto/:id" element={<Detalle />} />
+            <Route path="carrito" element={<Carrito />} />
+            <Route path="comentarios" element={<Comentarios />} />
+            <Route path="blog" element={<Blog />} />
+            <Route path="blog/detalle/1" element={<BlogDetalle1 />} />
+            <Route path="blog/detalle/2" element={<BlogDetalle2 />} />
+            <Route path="contacto" element={<Contacto />} />
+            <Route path="nosotros" element={<Nosotros />} />
+            <Route path="registro" element={<Registro />} />
+            <Route path="login" element={<InicioSesion />} />
+            <Route path="pago-exitoso" element={<PagoExitoso />} />
+            
+            {/* La ruta de admin también queda anidada bajo el Shell */}
+            <Route path="admin/agregar" element={<AgregarProducto />} />
+            
+            {/* Ruta para 404 */}
+            <Route path="*" element={<main className="wrap"><p>404: Ruta no encontrada</p></main>} />
+          </Route>
+        </Routes>
+
+      <Footer />
+
       </CartProvider>
     </BrowserRouter>
+    
   );
+  
 }

@@ -1,8 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useMemo, useState, useEffect } from 'react'; // <-- 1. Importamos useState y useEffect
+import React, { createContext, useContext, useMemo, useState, useEffect } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-// import { PRODUCTS } from '../data/products'; // <-- 2. ELIMINAMOS la importación estática
-import { getProductos } from '../services/api'; // <-- 3. Importamos nuestra API
+import { getProductos } from '../services/api'; // <-- Importamos la API
 
 const CART_KEY   = 'cart_v2';
 const COUPON_KEY = 'cart_coupon_v1';
@@ -21,19 +20,25 @@ export function CartProvider({ children }) {
   const [cart,   setCart]   = useLocalStorage(CART_KEY, []);
   const [coupon, setCoupon] = useLocalStorage(COUPON_KEY, '');
 
-  // 4. Creamos un estado para guardar la lista completa de productos de la API
+  // 1. Estado para guardar la lista de productos de la API
   const [productList, setProductList] = useState([]);
-
-  // 5. Usamos useEffect para cargar los productos de la API cuando el CartProvider se monta
-  useEffect(() => {
-    getProductos().then(data => {
-      setProductList(data); // Guardamos la lista de productos en el estado
-    });
-  }, []); // El [] asegura que solo se ejecute una vez
-
   
-  // 6. Movemos las funciones que dependen de la lista de productos DENTRO del Provider
-  //    para que puedan acceder a 'productList'
+  // 2. NUEVO ESTADO: Estado de carga
+  const [loading, setLoading] = useState(true);
+
+  // 3. Cargamos los productos cuando el Provider se inicia
+  useEffect(() => {
+    const loadProductData = async () => {
+      const data = await getProductos();
+      setProductList(data);
+      setLoading(false); // <-- Avisamos que la carga terminó
+    };
+    
+    loadProductData();
+  }, []); // Se carga una sola vez
+
+  // --- Funciones Internas ---
+  // (Las movemos aquí para que dependan de 'productList')
   
   function findProduct(id) {
     return productList.find(p => p.id === id);
@@ -41,7 +46,7 @@ export function CartProvider({ children }) {
 
   function computeTotals(cart, couponCode) {
     const detailed = cart.map(item => {
-      const p = findProduct(item.id); // Usa la función interna que accede a 'productList'
+      const p = findProduct(item.id); // Usa la lista del estado
       if (!p) return null;
 
       const qty = clampQty(item.qty, p.stock);
@@ -56,7 +61,7 @@ export function CartProvider({ children }) {
     const subtotal   = detailed.reduce((a, i) => a + i.line, 0);
     const totalItems = detailed.reduce((a, i) => a + i.qty, 0);
 
-    // (Tu lógica de cupones no cambia)
+    // Lógica de cupones (no cambia)
     let discount = 0;
     const code = (couponCode || '').toUpperCase();
     if (code === 'DESCUENTO10') discount = Math.round(subtotal * 0.10);
@@ -69,12 +74,10 @@ export function CartProvider({ children }) {
     return { detailed, subtotal, discount, total, totalItems, code };
   }
 
-  // 7. Agregamos 'productList' al array de dependencias de useMemo
-  //    Esto asegura que el carrito se recalcule si la lista de productos cambia
+  // 4. Agregamos 'productList' al array de dependencias de useMemo
   const api = useMemo(() => {
-
     const add = (id, qty = 1) => {
-      const p = findProduct(id); // Usa la función interna
+      const p = findProduct(id); // Usa la lista del estado
       if (!p) return; 
 
       setCart(prev => {
@@ -92,7 +95,7 @@ export function CartProvider({ children }) {
     };
 
     const setQty = (id, qty) => {
-      const p = findProduct(id); // Usa la función interna
+      const p = findProduct(id); // Usa la lista del estado
       if (!p) return;
 
       setCart(prev => {
@@ -107,7 +110,7 @@ export function CartProvider({ children }) {
     const clear = () => setCart([]);
 
     const getStock = (id) => {
-      const p = findProduct(id); // Usa la función interna
+      const p = findProduct(id); // Usa la lista del estado
       return Number(p?.stock ?? 0);
     };
 
@@ -117,7 +120,7 @@ export function CartProvider({ children }) {
       return Math.max(0, stock - inCart);
     };
 
-    const totals = computeTotals(cart, coupon); // Usa la función interna
+    const totals = computeTotals(cart, coupon);
 
     return {
       cart,
@@ -126,16 +129,34 @@ export function CartProvider({ children }) {
       totalItems: totals.totalItems,          
       setCoupon: (c) => setCoupon((c || '').toUpperCase()),
       clearCoupon: () => setCoupon(''),
-
       add,
       setQty,
       remove,
       clear,
-
       getStock,
       getStockLeft,
     };
-  }, [cart, coupon, setCart, setCoupon, productList]); // <-- 8. Dependemos de productList
+  }, [cart, coupon, setCart, setCoupon, productList]); // <-- productList es dependencia
 
+  // 5. NUEVA LÓGICA DE RENDERIZADO
+  // Si estamos cargando la lista de productos, mostramos un 'loading'
+  // y NO renderizamos el resto de la app (children).
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh', 
+        backgroundColor: '#111', 
+        color: 'white'
+      }}>
+        <h2>Cargando Tienda...</h2>
+      </div>
+    );
+  }
+
+  // Una vez que 'loading' es false, 'productList' está lleno
+  // y el contexto se provee al resto de la app.
   return <CartCtx.Provider value={api}>{children}</CartCtx.Provider>;
 }
