@@ -1,9 +1,9 @@
 import React, { useCallback } from 'react';
-// No necesitamos 'api.js' ni 'useState' aquí
+import { Link } from 'react-router-dom'; // Importamos Link para la navegación
 
-export default function Footer() {
-  
-  // Esta es la lógica original que tenías en Home.jsx
+// --- ACEPTAMOS LA PROP sessionUser ---
+export default function Footer({ sessionUser }) { 
+
   const handleSubscribe = useCallback((e) => {
     e.preventDefault();
     alert('¡Gracias por suscribirte!');
@@ -12,6 +12,21 @@ export default function Footer() {
   return (
     <footer>
       <div className="wrap foot">
+
+        {sessionUser && sessionUser.id === 1 && (
+          <div className="foot__row" style={{ 
+            padding: '10px 0', 
+            borderBottom: '1px solid #333' 
+          }}>
+            <Link to="/admin/agregar" style={{ 
+              color: 'var(--color-primary, aqua)', 
+              fontWeight: 'bold' 
+            }}>
+              + Crear Producto (Admin)
+            </Link>
+          </div>
+        )}
+
         <div className="foot__row">
           <strong>TANGANA</strong>
           <span className="spacer" />

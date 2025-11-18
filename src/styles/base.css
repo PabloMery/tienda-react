@@ -86,3 +86,18 @@ header {
   .nav{ flex-wrap:wrap; }
   .nav__actions{ width:100%; justify-content:flex-end; }
 }
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+.app-layout-wrapper {
+  display: flex;           /* Activa Flexbox */
+  flex-direction: column;  /* Apila los elementos: Header, Contenido, Footer */
+  min-height: 100vh;       /* Fuerza la altura mínima de la ventana */
+  width: 100%;
+}
+main {
+  flex: 1;                 /* Ocupa todo el espacio vertical sobrante */
+  width: 100%;
+}

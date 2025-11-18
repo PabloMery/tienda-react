@@ -68,6 +68,7 @@ function Shell() {
 
   return (
     <>
+    <div className="app-layout-wrapper">
       <nav className="top">
         <div className="wrap top__row">
           <span className="muted">
@@ -105,11 +106,8 @@ function Shell() {
             <NavLink to="/nosotros">Nosotros</NavLink>
             <NavLink to="/blog">Blog</NavLink>
             <NavLink to="/contacto">Contacto</NavLink>
-            {sessionUser && sessionUser.id === 1 && (
-              <NavLink to="/admin/agregar" style={{ color: 'aqua' }}>
-                Agregar (Admin)
-              </NavLink>
-            )}
+
+            
           </nav>
 
           <div className="nav__links">
@@ -117,11 +115,9 @@ function Shell() {
           </div>
         </div>
       </header>
-      
-      {/* Usamos <Outlet> para renderizar las rutas anidadas (Home, Productos, etc.)
-        Esto corrige la estructura que tenías en tu App.jsx original.
-      */}
       <Outlet />
+      <Footer sessionUser={sessionUser} />
+    </div>
     </>
   );
 }
@@ -155,7 +151,6 @@ export default function App() {
           </Route>
         </Routes>
 
-      <Footer />
 
       </CartProvider>
     </BrowserRouter>
