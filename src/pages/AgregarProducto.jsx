@@ -172,7 +172,6 @@ export default function AgregarProducto() {
               <div className="form-field">
                 <label>Imágenes</label>
                 <div className="image-input-group">
-                  {/* Input de texto (ahora secundario, pero útil para ver las URLs) */}
                   <input 
                     type="text" 
                     value={item.images} 
@@ -199,7 +198,6 @@ export default function AgregarProducto() {
                   </label>
                 </div>
 
-                {/* --- AQUÍ ESTÁ LA GALERÍA VISUAL --- */}
                 {item.images && (
                   <div className="preview-list">
                     {item.images.split(',').filter(Boolean).map((url, imgIdx) => (

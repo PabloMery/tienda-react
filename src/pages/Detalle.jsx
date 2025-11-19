@@ -97,7 +97,7 @@ export default function Detalle() {
     const result = await deleteProducto(p.id);
     if (result.success) {
       alert("Producto eliminado correctamente.");
-      navigate('/productos'); // Volver a la lista
+      navigate('/productos'); 
     } else {
       alert("Error al eliminar: " + result.error);
     }
@@ -176,7 +176,6 @@ export default function Detalle() {
                       ✏️ Editar
                     </button>
 
-                    {/* Botón Eliminar */}
                     <button 
                       onClick={handleDelete}
                       style={{ 
@@ -194,7 +193,6 @@ export default function Detalle() {
                   </div>
                 </div>
               )}
-              {/* --- FIN ZONA ADMIN --- */}
 
               <div className="p-title">
                 <h1 id="p-title">{p.name}</h1>
