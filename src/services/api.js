@@ -94,7 +94,33 @@ export const createProductosBatch = async (productos) => {
   }
 };
 
+/**
+ * Elimina un producto por su ID.
+ */
+export const deleteProducto = async (id) => {
+  try {
+    // DELETE http://localhost:8080/api/productos/123
+    await axios.delete(`${API_URL}/productos/${id}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Error al eliminar producto:", error);
+    return { success: false, error: error.response?.data || error.message };
+  }
+};
 
+/**
+ * Actualiza un producto existente.
+ * (Lo usaremos cuando crees la página de Edición)
+ */
+export const updateProducto = async (id, productoData) => {
+  try {
+    const response = await axios.put(`${API_URL}/productos/${id}`, productoData);
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error("Error al actualizar producto:", error);
+    return { success: false, error: error.response?.data || error.message };
+  }
+};
 
 
 

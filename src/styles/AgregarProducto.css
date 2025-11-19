@@ -236,6 +236,57 @@ input[type="number2"]{
   border-radius:.55rem;
   font:inherit;
 }
+/* --- AGREGAR AL FINAL DE src/styles/AgregarProducto.css --- */
+
+/* Contenedor de las miniaturas */
+.preview-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  border-radius: 8px;
+}
+
+/* Cada items de imagen */
+.preview-item {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #444;
+}
+
+.preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Botón X para borrar una foto individual */
+.preview-remove {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: rgba(255, 0, 0, 0.8);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.preview-remove:hover {
+  background: red;
+}
 /* Responsive: En móviles, que la fila ancha se vuelva normal */
 @media (max-width: 600px) {
   .admin-row.wide {

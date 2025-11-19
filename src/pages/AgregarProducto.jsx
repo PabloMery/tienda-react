@@ -10,6 +10,14 @@ export default function AgregarProducto() {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState(null);
 
+  // --- Helpers ---
+  
+  // Función para resolver la URL correcta (Backend vs Frontend) para la vista previa
+  const getPreviewUrl = (url) => {
+    if (!url) return '';
+    return url.startsWith('/api') ? `http://localhost:8080${url}` : url;
+  };
+
   // --- LÓGICA DE LA TABLA ---
   
   const addNewRow = () => {
@@ -28,55 +36,60 @@ export default function AgregarProducto() {
     setItems(newItems);
   };
 
-  // --- LÓGICA DE SUBIDA MÚLTIPLE (MODIFICADO) ---
+  // --- NUEVO: BORRAR UNA SOLA IMAGEN ---
+  const handleRemoveSingleImage = (rowIndex, imgIndex) => {
+    const newItems = [...items];
+    // 1. Convertimos el string en array
+    const currentImages = newItems[rowIndex].images.split(',').filter(Boolean);
+    
+    // 2. Eliminamos la imagen específica
+    currentImages.splice(imgIndex, 1);
+    
+    // 3. Guardamos de nuevo como string
+    newItems[rowIndex].images = currentImages.join(',');
+    setItems(newItems);
+  };
+
+  // --- LÓGICA DE SUBIDA ---
   
   const handleImageUpload = async (index, e) => {
-    const files = e.target.files; // Ahora obtenemos la lista completa
+    const files = e.target.files; 
     if (!files || files.length === 0) return;
 
-    // Guardamos el valor actual para no perderlo si hay error o para concatenar
     const originalValue = items[index].images;
-    // Feedback visual mientras suben
-    handleChange(index, 'images', 'Subiendo imágenes...');
+    handleChange(index, 'images', 'Subiendo...'); // Feedback
 
     try {
       const uploadedUrls = [];
-
-      // Recorremos todos los archivos seleccionados
       for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        // Subimos cada archivo individualmente
-        const url = await uploadImage(file);
-        if (url) {
-          uploadedUrls.push(url);
-        }
+        const url = await uploadImage(files[i]);
+        if (url) uploadedUrls.push(url);
       }
 
       if (uploadedUrls.length > 0) {
-        // Unimos las nuevas URLs con comas
         const newUrlsString = uploadedUrls.join(',');
-
-        // Si ya había imágenes antes (y no era el texto de carga), las concatenamos
-        // Limpiamos 'Subiendo...' antes de concatenar
-        const currentValueClean = originalValue === 'Subiendo imágenes...' ? '' : originalValue;
         
+        // Limpiamos el texto de carga
+        const currentValueClean = originalValue === 'Subiendo...' ? '' : originalValue;
+        
+        // Concatenamos (Agregamos a lo que ya existe)
         const finalValue = currentValueClean 
           ? `${currentValueClean},${newUrlsString}` 
           : newUrlsString;
         
         handleChange(index, 'images', finalValue);
       } else {
-        alert("No se pudieron subir las imágenes.");
-        handleChange(index, 'images', originalValue === 'Subiendo imágenes...' ? '' : originalValue);
+        // Restauramos si falló
+        handleChange(index, 'images', originalValue === 'Subiendo...' ? '' : originalValue);
       }
-
     } catch (error) {
-      console.error("Error subiendo múltiples:", error);
-      handleChange(index, 'images', originalValue === 'Subiendo imágenes...' ? '' : originalValue);
+      console.error(error);
+      handleChange(index, 'images', originalValue === 'Subiendo...' ? '' : originalValue);
     }
+    
+    // Limpiamos el input para permitir subir el mismo archivo de nuevo si se desea
+    e.target.value = ''; 
   };
-
-  // --- ENVÍO DEL FORMULARIO ---
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -88,16 +101,14 @@ export default function AgregarProducto() {
       price: parseInt(item.price) || 0,
       stock: parseInt(item.stock) || 0,
       category: item.category,
-      // Limpiamos espacios y comas extra
       images: item.images.split(',').map(img => img.trim()).filter(Boolean)
     }));
 
     const result = await createProductosBatch(productosParaEnviar);
-
     setLoading(false);
 
     if (result.success) {
-      setMsg({ type: 'success', text: `¡Éxito! Se han creado ${result.data.length} productos.` });
+      setMsg({ type: 'success', text: `¡Éxito! ${result.data.length} productos creados.` });
       setItems([{ name: '', price: '', category: '', stock: '', images: '' }]);
     } else {
       setMsg({ type: 'error', text: `Error: ${result.error}` });
@@ -107,53 +118,41 @@ export default function AgregarProducto() {
   return (
     <main className="admin-container">
       <h1 className="admin-title">Administración de Productos</h1>
-      <p className="admin-subtitle">
-        Carga unitaria o masiva. Sube fotos o usa URLs externas.
-      </p>
-
+      
       <form onSubmit={handleSubmit}>
         {items.map((item, index) => (
           <div key={index} className="admin-card">
             {items.length > 1 && (
-              <button 
-                type="button" 
-                className="remove-btn" 
-                onClick={() => removeRow(index)}
-                title="Eliminar fila"
-              >
-                X
-              </button>
+              <button type="button" className="remove-btn" onClick={() => removeRow(index)}>X</button>
             )}
             
             <div className="admin-row">
               <div className="form-field">
-                <label>Nombre del Producto</label>
+                <label>Nombre</label>
                 <input 
-                  type="text" 
                   value={item.name} 
                   onChange={e => handleChange(index, 'name', e.target.value)} 
-                  placeholder="Ej: Bicicleta BMX Pro"
                   required 
+                  placeholder="Ej: Bicicleta BMX Pro"
                 />
               </div>
               <div className="form-field">
                 <label>Precio</label>
                 <input 
-                  type="number" 
+                  type="number2" 
                   value={item.price} 
                   onChange={e => handleChange(index, 'price', e.target.value)} 
-                  placeholder="99990"
                   required 
+                  placeholder="99990"
                 />
               </div>
               <div className="form-field">
                 <label>Categoría</label>
                 <input 
-                  type="text" 
                   value={item.category} 
                   onChange={e => handleChange(index, 'category', e.target.value)} 
-                  placeholder="BMX"
                   required 
+                  placeholder="BMX"
                 />
               </div>
             </div>
@@ -165,20 +164,21 @@ export default function AgregarProducto() {
                   type="number" 
                   value={item.stock} 
                   onChange={e => handleChange(index, 'stock', e.target.value)} 
-                  placeholder="10"
                   required 
+                  placeholder="10"
                 />
               </div>
               
               <div className="form-field">
                 <label>Imágenes</label>
                 <div className="image-input-group">
+                  {/* Input de texto (ahora secundario, pero útil para ver las URLs) */}
                   <input 
                     type="text" 
                     value={item.images} 
                     onChange={e => handleChange(index, 'images', e.target.value)} 
                     placeholder="Las URLs aparecerán aquí..."
-                    required 
+                    readOnly // Opcional: Hazlo readOnly si prefieres que solo usen botones
                   />
                   
                   <label className="upload-label">
@@ -195,16 +195,37 @@ export default function AgregarProducto() {
                       style={{ display: 'none' }} 
                       onChange={(e) => handleImageUpload(index, e)}
                     />
+                    
                   </label>
                 </div>
-                <small>Para múltiples fotos, separa las URLs con comas.</small>
+
+                {/* --- AQUÍ ESTÁ LA GALERÍA VISUAL --- */}
+                {item.images && (
+                  <div className="preview-list">
+                    {item.images.split(',').filter(Boolean).map((url, imgIdx) => (
+                      <div key={imgIdx} className="preview-item">
+                        <img src={getPreviewUrl(url.trim())} alt="preview" />
+                        <button 
+                          type="button" 
+                          className="preview-remove"
+                          onClick={() => handleRemoveSingleImage(index, imgIdx)}
+                          title="Quitar imagen"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {/* ----------------------------------- */}
+
               </div>
             </div>
           </div>
         ))}
 
         <button type="button" className="add-row-btn" onClick={addNewRow}>
-          + Agregar otra fila de producto
+          + Agregar otro producto
         </button>
 
         <div className="submit-area">
@@ -213,11 +234,7 @@ export default function AgregarProducto() {
           </button>
         </div>
 
-        {msg && (
-          <div className={`feedback-msg ${msg.type}`}>
-            {msg.text}
-          </div>
-        )}
+        {msg && <div className={`feedback-msg ${msg.type}`}>{msg.text}</div>}
       </form>
     </main>
   );

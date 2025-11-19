@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { getProductoById, getProductos } from '../services/api';
+// 1. Importamos deleteProducto
+import { getProductoById, getProductos, deleteProducto } from '../services/api';
 import { useCart } from "../context/CartContext";
 import { money } from "../utils/money";
 import "../styles/estilodetalleProductos.css";
@@ -17,41 +18,49 @@ export default function Detalle() {
   const [activeIdx, setActiveIdx] = useState(0);
   const [qty, setQty] = useState(1);
 
-  // --- FUNCIÓN HELPER PARA IMÁGENES ---
-  // Detecta si la imagen viene del Backend (empieza con /api) o del Frontend (carpeta public)
+  // 2. LEEMOS EL USUARIO PARA SABER SI ES ADMIN
+  const sessionUser = JSON.parse(localStorage.getItem("session_user"));
+  const isAdmin = sessionUser && sessionUser.id === 1;
+
   const getImageSrc = (imgUrl) => {
     if (!imgUrl) return '/IMG/placeholder.jpg';
-    
-    // Si es una ruta del backend, le pegamos el dominio del backend (puerto 8080)
     if (imgUrl.startsWith('/api')) {
       return `http://localhost:8080${imgUrl}`;
     }
-    
-    // Si no, asumimos que es una ruta estática local (/IMG/...)
     return imgUrl;
   };
 
   useEffect(() => {
+    let isMounted = true;
     const cargarDatos = async () => {
+      setProducto(null);
+      setRelated([]);
       setCargando(true);
       
-      const producto = await getProductoById(id);
-      setProducto(producto);
-      setActiveIdx(0);
+      try {
+        const producto = await getProductoById(id);
+        
+        if (isMounted) {
+          setProducto(producto);
+          setActiveIdx(0);
 
-      if (producto) {
-        // Cargar relacionados
-        const todos = await getProductos();
-        const relacionados = todos
-          .filter(x => x.category === producto.category && x.id !== producto.id)
-          .slice(0, 4);
-        setRelated(relacionados);
+          if (producto) {
+            const todos = await getProductos();
+            const currentId = Number(producto.id);
+            const relacionados = todos
+              .filter(x => x.category === producto.category && Number(x.id) !== currentId)
+              .slice(0, 4);
+            setRelated(relacionados);
+          }
+        }
+      } catch (error) {
+        console.error("Error cargando detalle:", error);
+      } finally {
+        if (isMounted) setCargando(false);
       }
-      
-      setCargando(false);
     };
-
     cargarDatos();
+    return () => { isMounted = false; };
   }, [id]);
 
   const images = useMemo(() => {
@@ -79,15 +88,31 @@ export default function Detalle() {
     });
   };
 
-  if (cargando) {
-    return <main className="wrap"><p style={{textAlign: 'center'}}>Cargando producto...</p></main>;
+  // 3. NUEVA FUNCIÓN PARA ELIMINAR
+  const handleDelete = async () => {
+    if (!confirm(`¿Estás seguro de que quieres eliminar "${p.name}"? Esta acción no se puede deshacer.`)) {
+      return;
+    }
+
+    const result = await deleteProducto(p.id);
+    if (result.success) {
+      alert("Producto eliminado correctamente.");
+      navigate('/productos'); // Volver a la lista
+    } else {
+      alert("Error al eliminar: " + result.error);
+    }
+  };
+
+  if (cargando || !p) {
+    return (
+      <main className="wrap" style={{ minHeight: '50vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p style={{ fontSize: '1.2rem', color: '#888' }}>Cargando producto...</p>
+      </main>
+    );
   }
 
   return (
     <main className="wrap">
-      {!p ? (
-        <p>Producto no encontrado.</p>
-      ) : (
         <>
           <nav className="breadcrumb">
             <Link to="/">Home</Link> <span> › </span>
@@ -97,16 +122,15 @@ export default function Detalle() {
 
           <section className="product">
             <div className="panel left">
-              {/* IMAGEN PRINCIPAL (Usa getImageSrc) */}
               <div id="p-main" className="p-main">
                 <img
-                  src={getImageSrc(images[activeIdx])} 
+                  key={images[activeIdx]}
+                  src={getImageSrc(images[activeIdx])}
                   alt={`${p.name} ${activeIdx + 1}`}
                   loading="lazy"
                 />
               </div>
 
-              {/* MINIATURAS (Usa getImageSrc en el map) */}
               <div id="p-thumbs" className="thumbs">
                 {images.map((src, i) => (
                   <button
@@ -116,24 +140,69 @@ export default function Detalle() {
                     onClick={() => setActiveIdx(i)}
                     aria-label={`Ver imagen ${i + 1}`}
                   >
-                    <img 
-                      src={getImageSrc(src)} 
-                      alt={`${p.name} miniatura ${i + 1}`} 
-                      loading="lazy" 
-                    />
+                    <img src={getImageSrc(src)} alt={`miniatura ${i + 1}`} loading="lazy" />
                   </button>
                 ))}
               </div>
             </div>
 
             <div className="panel right">
+              {/* --- ZONA DE ADMINISTRACIÓN (Sólo visible para Admin) --- */}
+              {isAdmin && (
+                <div style={{ 
+                  marginBottom: '1.5rem', 
+                  padding: '1rem', 
+                  border: '1px dashed #444', 
+                  borderRadius: '8px',
+                  backgroundColor: '#222' 
+                }}>
+                  <strong style={{ color: '#888', display: 'block', marginBottom: '0.5rem', fontSize: '0.8rem' }}>
+                    PANEL DE ADMINISTRADOR
+                  </strong>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    {/* Botón Editar (Redirige a una ruta futura) */}
+                    <button 
+                      onClick={() => navigate(`/admin/editar/${p.id}`)}
+                      style={{ 
+                        padding: '8px 16px', 
+                        background: '#00ffff', 
+                        color: '#000', 
+                        border: 'none', 
+                        borderRadius: '4px', 
+                        fontWeight: 'bold', 
+                        cursor: 'pointer' 
+                      }}
+                    >
+                      ✏️ Editar
+                    </button>
+
+                    {/* Botón Eliminar */}
+                    <button 
+                      onClick={handleDelete}
+                      style={{ 
+                        padding: '8px 16px', 
+                        background: '#ff4444', 
+                        color: '#fff', 
+                        border: 'none', 
+                        borderRadius: '4px', 
+                        fontWeight: 'bold', 
+                        cursor: 'pointer' 
+                      }}
+                    >
+                      🗑️ Eliminar
+                    </button>
+                  </div>
+                </div>
+              )}
+              {/* --- FIN ZONA ADMIN --- */}
+
               <div className="p-title">
                 <h1 id="p-title">{p.name}</h1>
                 <div className="price" id="p-price">{money(p.price)}</div>
               </div>
 
               <p id="p-desc" className="muted">
-                {p.description || "Descripción no disponible."}
+                {p.description || "Descripción no disponible para este producto."}
               </p>
 
               <div className="qty">
@@ -162,13 +231,13 @@ export default function Detalle() {
 
           {related.length > 0 && (
             <section className="related">
+              {/* ... (Tu sección de relacionados sigue igual) ... */}
               <h2>Productos Relacionados</h2>
               <div id="related" className="rel__list">
                 {related.map(r => (
                   <Link key={r.id} to={`/producto/${r.id}`} className="rel__item">
                     <article>
                       <div className="rel__img">
-                        {/* IMAGEN DE RELACIONADOS (Usa getImageSrc) */}
                         <img
                           src={getImageSrc((r.images && r.images[0]))}
                           alt={r.name}
@@ -184,7 +253,6 @@ export default function Detalle() {
             </section>
           )}
         </>
-      )}
     </main>
   );
 }

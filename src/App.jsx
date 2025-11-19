@@ -18,6 +18,7 @@ import Nosotros from "./pages/Nosotros";
 import PagoExitoso from "./pages/PagoExitoso"
 import AgregarProducto from "./pages/AgregarProducto";
 import Footer from "./components/Footer";
+import EditarProducto from "./pages/EditarProducto";
 
 const SESSION_KEY = "session_user";
 function getSessionUser() {
@@ -142,11 +143,8 @@ export default function App() {
             <Route path="registro" element={<Registro />} />
             <Route path="login" element={<InicioSesion />} />
             <Route path="pago-exitoso" element={<PagoExitoso />} />
-            
-            {/* La ruta de admin también queda anidada bajo el Shell */}
             <Route path="admin/agregar" element={<AgregarProducto />} />
-            
-            {/* Ruta para 404 */}
+            <Route path="admin/editar/:id" element={<EditarProducto />} />
             <Route path="*" element={<main className="wrap"><p>404: Ruta no encontrada</p></main>} />
           </Route>
         </Routes>
