@@ -85,7 +85,7 @@ function Shell() {
             <button
               className="btn-link"
               onClick={handleLogout}
-              style={{ background: "none", border: "none", cursor: "pointer", color: "white" }}
+              style={{ background: "#d0d1d4ff", border: "none", cursor: "pointer", color: "#1f2937" }}
             >
               Cerrar sesión
             </button>

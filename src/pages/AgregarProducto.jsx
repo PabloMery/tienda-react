@@ -188,7 +188,6 @@ export default function AgregarProducto() {
                       <line x1="12" y1="3" x2="12" y2="15"></line>
                     </svg>
                     Subir Fotos
-                    {/* --- AQUÍ ESTÁ EL CAMBIO CLAVE: 'multiple' --- */}
                     <input 
                       type="file" 
                       accept="image/*" 

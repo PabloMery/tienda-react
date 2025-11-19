@@ -229,7 +229,13 @@
   color: #f87171;
   border: 1px solid #dc2626;
 }
-
+input[type="number2"]{
+  width:120px;
+  padding:.5rem .6rem;
+  border:1px solid var(--border);
+  border-radius:.55rem;
+  font:inherit;
+}
 /* Responsive: En móviles, que la fila ancha se vuelva normal */
 @media (max-width: 600px) {
   .admin-row.wide {

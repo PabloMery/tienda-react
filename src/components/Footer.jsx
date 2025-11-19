@@ -19,7 +19,7 @@ export default function Footer({ sessionUser }) {
             borderBottom: '1px solid #333' 
           }}>
             <Link to="/admin/agregar" style={{ 
-              color: 'var(--color-primary, aqua)', 
+              color: '#2563eb', 
               fontWeight: 'bold' 
             }}>
               + Crear Producto (Admin)
