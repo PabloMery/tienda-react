@@ -64,7 +64,35 @@ export const createProducto = async (productoData) => {
     return { success: false, error: errorMessage };
   }
 };
+export const uploadImage = async (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
 
+  try {
+    // Enviamos al puerto 8080 (Productos/Archivos)
+    const response = await axios.post(`${API_URL}/files/upload`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    // Devuelve algo como: "/api/files/12345_mifoto.jpg"
+    return response.data; 
+  } catch (error) {
+    console.error("Error subiendo imagen:", error);
+    return null;
+  }
+};
+
+// Crear múltiples productos a la vez (para el nuevo formulario)
+export const createProductosBatch = async (productos) => {
+  try {
+    const response = await axios.post(`${API_URL}/productos/batch`, productos);
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error("Error batch:", error);
+    return { success: false, error: "Error al crear productos" };
+  }
+};
 
 
 

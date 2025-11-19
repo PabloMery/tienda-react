@@ -1,131 +1,224 @@
 import React, { useState } from 'react';
-import { createProducto } from '../services/api'; // Importamos nuestra función
-import '../styles/Registro.css'; // Reutilizamos los estilos del registro
+import { createProductosBatch, uploadImage } from '../services/api';
+import '../styles/AgregarProducto.css';
 
 export default function AgregarProducto() {
-  // Estados para cada campo del formulario
-  const [name, setName] = useState('');
-  const [price, setPrice] = useState('');
-  const [category, setCategory] = useState('');
-  const [stock, setStock] = useState('');
-  const [images, setImages] = useState(''); // Lo manejaremos como un string separado por comas
+  const [items, setItems] = useState([
+    { name: '', price: '', category: '', stock: '', images: '' }
+  ]);
 
-  // Estados para manejar la respuesta de la API
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
+  const [msg, setMsg] = useState(null);
+
+  // --- LÓGICA DE LA TABLA ---
+  
+  const addNewRow = () => {
+    setItems([...items, { name: '', price: '', category: '', stock: '', images: '' }]);
+  };
+
+  const removeRow = (index) => {
+    if (items.length === 1) return;
+    const newItems = items.filter((_, i) => i !== index);
+    setItems(newItems);
+  };
+
+  const handleChange = (index, field, value) => {
+    const newItems = [...items];
+    newItems[index][field] = value;
+    setItems(newItems);
+  };
+
+  // --- LÓGICA DE SUBIDA MÚLTIPLE (MODIFICADO) ---
+  
+  const handleImageUpload = async (index, e) => {
+    const files = e.target.files; // Ahora obtenemos la lista completa
+    if (!files || files.length === 0) return;
+
+    // Guardamos el valor actual para no perderlo si hay error o para concatenar
+    const originalValue = items[index].images;
+    // Feedback visual mientras suben
+    handleChange(index, 'images', 'Subiendo imágenes...');
+
+    try {
+      const uploadedUrls = [];
+
+      // Recorremos todos los archivos seleccionados
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        // Subimos cada archivo individualmente
+        const url = await uploadImage(file);
+        if (url) {
+          uploadedUrls.push(url);
+        }
+      }
+
+      if (uploadedUrls.length > 0) {
+        // Unimos las nuevas URLs con comas
+        const newUrlsString = uploadedUrls.join(',');
+
+        // Si ya había imágenes antes (y no era el texto de carga), las concatenamos
+        // Limpiamos 'Subiendo...' antes de concatenar
+        const currentValueClean = originalValue === 'Subiendo imágenes...' ? '' : originalValue;
+        
+        const finalValue = currentValueClean 
+          ? `${currentValueClean},${newUrlsString}` 
+          : newUrlsString;
+        
+        handleChange(index, 'images', finalValue);
+      } else {
+        alert("No se pudieron subir las imágenes.");
+        handleChange(index, 'images', originalValue === 'Subiendo imágenes...' ? '' : originalValue);
+      }
+
+    } catch (error) {
+      console.error("Error subiendo múltiples:", error);
+      handleChange(index, 'images', originalValue === 'Subiendo imágenes...' ? '' : originalValue);
+    }
+  };
+
+  // --- ENVÍO DEL FORMULARIO ---
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
-    setSuccess(null);
+    setMsg(null);
 
-    // 1. Convertimos los datos al formato que espera la API
-    const parsedPrice = parseInt(price, 10);
-    const parsedStock = parseInt(stock, 10);
-    
-    // Convertimos el string "img1.jpg, img2.jpg" en un array ["img1.jpg", "img2.jpg"]
-    const parsedImages = images.split(',').map(img => img.trim());
+    const productosParaEnviar = items.map(item => ({
+      name: item.name,
+      price: parseInt(item.price) || 0,
+      stock: parseInt(item.stock) || 0,
+      category: item.category,
+      // Limpiamos espacios y comas extra
+      images: item.images.split(',').map(img => img.trim()).filter(Boolean)
+    }));
 
-    const productoData = {
-      name,
-      price: parsedPrice,
-      category,
-      stock: parsedStock,
-      images: parsedImages,
-    };
-
-    // 2. Llamamos a la API
-    const result = await createProducto(productoData);
+    const result = await createProductosBatch(productosParaEnviar);
 
     setLoading(false);
 
     if (result.success) {
-      setSuccess(`¡Producto "${result.data.name}" creado con éxito!`);
-      // Limpiamos el formulario
-      setName('');
-      setPrice('');
-      setCategory('');
-      setStock('');
-      setImages('');
+      setMsg({ type: 'success', text: `¡Éxito! Se han creado ${result.data.length} productos.` });
+      setItems([{ name: '', price: '', category: '', stock: '', images: '' }]);
     } else {
-      // Mostramos el error de validación (ej: "El precio no puede ser negativo")
-      setError(result.error);
+      setMsg({ type: 'error', text: `Error: ${result.error}` });
     }
   };
 
   return (
-    <main className="wrap auth">
-      <h1 className="title">Agregar Nuevo Producto</h1>
-      <p>Completa el formulario para agregar un ítem a la tienda.</p>
+    <main className="admin-container">
+      <h1 className="admin-title">Administración de Productos</h1>
+      <p className="admin-subtitle">
+        Carga unitaria o masiva. Sube fotos o usa URLs externas.
+      </p>
 
-      <form onSubmit={handleSubmit} className="auth-form">
-        <div className="form-field">
-          <label htmlFor="name">Nombre del Producto</label>
-          <input
-            id="name"
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-        </div>
+      <form onSubmit={handleSubmit}>
+        {items.map((item, index) => (
+          <div key={index} className="admin-card">
+            {items.length > 1 && (
+              <button 
+                type="button" 
+                className="remove-btn" 
+                onClick={() => removeRow(index)}
+                title="Eliminar fila"
+              >
+                X
+              </button>
+            )}
+            
+            <div className="admin-row">
+              <div className="form-field">
+                <label>Nombre del Producto</label>
+                <input 
+                  type="text" 
+                  value={item.name} 
+                  onChange={e => handleChange(index, 'name', e.target.value)} 
+                  placeholder="Ej: Bicicleta BMX Pro"
+                  required 
+                />
+              </div>
+              <div className="form-field">
+                <label>Precio</label>
+                <input 
+                  type="number" 
+                  value={item.price} 
+                  onChange={e => handleChange(index, 'price', e.target.value)} 
+                  placeholder="99990"
+                  required 
+                />
+              </div>
+              <div className="form-field">
+                <label>Categoría</label>
+                <input 
+                  type="text" 
+                  value={item.category} 
+                  onChange={e => handleChange(index, 'category', e.target.value)} 
+                  placeholder="BMX"
+                  required 
+                />
+              </div>
+            </div>
 
-        <div className="form-field">
-          <label htmlFor="price">Precio (CLP)</label>
-          <input
-            id="price"
-            type="number"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            required
-          />
-        </div>
+            <div className="admin-row wide">
+              <div className="form-field">
+                <label>Stock</label>
+                <input 
+                  type="number" 
+                  value={item.stock} 
+                  onChange={e => handleChange(index, 'stock', e.target.value)} 
+                  placeholder="10"
+                  required 
+                />
+              </div>
+              
+              <div className="form-field">
+                <label>Imágenes</label>
+                <div className="image-input-group">
+                  <input 
+                    type="text" 
+                    value={item.images} 
+                    onChange={e => handleChange(index, 'images', e.target.value)} 
+                    placeholder="Las URLs aparecerán aquí..."
+                    required 
+                  />
+                  
+                  <label className="upload-label">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="17 8 12 3 7 8"></polyline>
+                      <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    Subir Fotos
+                    {/* --- AQUÍ ESTÁ EL CAMBIO CLAVE: 'multiple' --- */}
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      multiple 
+                      style={{ display: 'none' }} 
+                      onChange={(e) => handleImageUpload(index, e)}
+                    />
+                  </label>
+                </div>
+                <small>Para múltiples fotos, separa las URLs con comas.</small>
+              </div>
+            </div>
+          </div>
+        ))}
 
-        <div className="form-field">
-          <label htmlFor="category">Categoría</label>
-          <input
-            id="category"
-            type="text"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            placeholder="Ej: BMX, Patinetas, Patines"
-            required
-          />
-        </div>
-
-        <div className="form-field">
-          <label htmlFor="stock">Stock Inicial</label>
-          <input
-            id="stock"
-            type="number"
-            value={stock}
-            onChange={(e) => setStock(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className="form-field">
-          <label htmlFor="images">Imágenes (URLs)</label>
-          <input
-            id="images"
-            type="text"
-            value={images}
-            onChange={(e) => setImages(e.target.value)}
-            placeholder="Ej: /IMG/BMX/img1.jpg, /IMG/BMX/img2.jpg"
-            required
-          />
-          <small>Rutas separadas por coma (,)</small>
-        </div>
-
-        <button type="submit" className="btn-primary" disabled={loading}>
-          {loading ? 'Guardando...' : 'Guardar Producto'}
+        <button type="button" className="add-row-btn" onClick={addNewRow}>
+          + Agregar otra fila de producto
         </button>
 
-        {/* Mensajes de feedback */}
-        {success && <p className="auth-success">{success}</p>}
-        {error && <p className="auth-error">{error}</p>}
+        <div className="submit-area">
+          <button type="submit" className="submit-btn" disabled={loading}>
+            {loading ? 'Guardando...' : 'Guardar Todos'}
+          </button>
+        </div>
+
+        {msg && (
+          <div className={`feedback-msg ${msg.type}`}>
+            {msg.text}
+          </div>
+        )}
       </form>
     </main>
   );
