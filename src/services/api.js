@@ -3,6 +3,7 @@ import axios from 'axios';
 // 1. La URL base de tu API de Spring Boot
 const API_URL = 'http://localhost:8080/api';
 const API_URL2 = 'http://localhost:8081/api';
+const API_AUTH_URL = 'http://localhost:3000/api/auth'; 
 
 
 export const getProductos = async () => {
@@ -160,4 +161,53 @@ export const iniciarSesion = async (credenciales) => {
     console.error("Error al iniciar sesión:", error);
     throw new Error("Error en el servidor al intentar iniciar sesión.");
   }
+};
+
+
+
+
+
+// --- Autenticación (Node) ---
+export const loginUser = async (credentials) => {
+    try {
+        // credentials: { username: 'email@ejemplo.com', password: '...' }
+        const response = await axios.post(`${API_AUTH_URL}/login`, credentials);
+        
+        if (response.data.token) {
+            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('user', JSON.stringify(response.data.user));
+        }
+        return response.data;
+    } catch (error) {
+        throw error.response ? error.response.data : { message: "Error de conexión (Node)" };
+    }
+};
+
+export const registerUser = async (userData) => {
+    try {
+        // 1. Registrar en Node (Auth - Seguridad)
+        const authPayload = {
+            username: userData.email, // Node espera 'username'
+            password: userData.password
+        };
+        const authResponse = await axios.post(`${API_AUTH_URL}/register`, authPayload);
+
+        // 2. Registrar en Java (Perfil - Datos personales) puerto 8081
+        if (authResponse.status === 200 || authResponse.status === 201) {
+            const userPayload = {
+                nombre: userData.nombre,
+                correo: userData.email, // Java espera 'correo'
+                pass: "encriptada_en_node", // Mandamos un placeholder a Java ya que Node tiene la real
+                telefono: userData.telefono || "",
+                region: "",
+                comuna: ""
+            };
+            await axios.post(API_URL2, userPayload);
+        }
+
+        return authResponse.data;
+    } catch (error) {
+        console.error("Error en registro:", error);
+        throw error.response ? error.response.data : { message: "Error al registrar" };
+    }
 };
