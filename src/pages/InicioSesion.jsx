@@ -1,16 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-// --- INICIO DE LA MODIFICACIÓN (1/3): Se añade la importación de la API ---
-import { iniciarSesion } from "../services/api";
+// 1. IMPORTANTE: Importamos también getUserProfile
+import { loginUser, getUserProfile } from "../services/api"; 
 import "../styles/inicioSesion.css";
 
 const EMAIL_RX = /^[^\s@]+@(duoc\.cl|profesor\.duoc\.cl|gmail\.com)$/i;
-// --- INICIO DE LA MODIFICACIÓN (2/3): Se eliminan estas constantes y funciones ---
-// const USERS_KEY = "usuarios_v1"; // Ya no se necesita
 const SESSION_KEY = "session_user";
-
-// La función getUsers() ya no es necesaria porque la validación se hace en el backend
-// const getUsers = () => { ... };
 
 export default function InicioSesion() {
   const navigate = useNavigate();
@@ -32,8 +27,7 @@ export default function InicioSesion() {
 
   const validatePassword = () => {
     if (!pass) return "La contraseña es requerida.";
-    if (pass.length < 4 || pass.length > 10)
-      return "Debe tener entre 4 y 10 caracteres.";
+    if (pass.length < 4) return "Debe tener al menos 4 caracteres."; 
     return "";
   };
 
@@ -45,7 +39,6 @@ export default function InicioSesion() {
     setAuthMsg("");
   }, [email, pass]);
 
-  // --- INICIO DE LA MODIFICACIÓN (3/3): Se reemplaza la función handleSubmit ---
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isValid) return;
@@ -54,37 +47,46 @@ export default function InicioSesion() {
     setAuthMsg("Iniciando sesión...");
 
     try {
-      // 1. Llama a la API con las credenciales para que las valide en el backend
-      const usuarioLogueado = await iniciarSesion({ correo: email, pass });
+      // PASO 1: Login contra Node.js (Seguridad)
+      const data = await loginUser({ correo: email, pass });
 
-      // 2. Si la API responde exitosamente, guarda la sesión del usuario
-      //    con los datos que devolvió el servidor.
-      localStorage.setItem(
-        SESSION_KEY,
-        JSON.stringify({
-          id: usuarioLogueado.id,
-          nombre: usuarioLogueado.nombre,
-          email: usuarioLogueado.correo,
-        })
-      );
+      // PASO 2 (NUEVO): Buscar el nombre real en Java usando el email
+      let nombreUsuario = data.user.email; // Por defecto usamos el email
+      
+      try {
+          const perfilJava = await getUserProfile(email);
+          if (perfilJava && perfilJava.nombre) {
+              nombreUsuario = perfilJava.nombre; // ¡Aquí recuperamos el nombre!
+          }
+      } catch (errorPerfil) {
+          console.warn("No se pudo obtener el nombre del usuario:", errorPerfil);
+      }
+
+      // PASO 3: Guardar la sesión con el nombre correcto
+      const sessionUser = {
+        id: data.user.id,
+        email: data.user.email, 
+        nombre: nombreUsuario, // Ahora sí lleva el nombre real
+        token: data.token
+      };
+
+      localStorage.setItem(SESSION_KEY, JSON.stringify(sessionUser));
+      localStorage.setItem("correo", email);
 
       window.dispatchEvent(new Event("session-updated"));
 
       setStatus("ok");
-      setAuthMsg("Inicio de sesión exitoso ✅ Redirigiendo...");
+      setAuthMsg(`¡Hola ${nombreUsuario}! Redirigiendo...`);
 
       setTimeout(() => navigate("/"), 1500);
 
     } catch (error) {
-      // 3. Si la API devuelve un error (ej: 401 Unauthorized),
-      //    se muestra el mensaje de error que definimos en api.js.
       setStatus("error");
-      setAuthMsg(`${error.message} ❌`);
+      setAuthMsg(`${error.error || "Error de autenticación"} ❌`);
     }
   };
 
   return (
-    // El JSX del return no necesita ningún cambio
     <main className="wrap auth">
       <section className="auth__card" aria-labelledby="titulo-login">
         <div className="auth__head">
@@ -107,7 +109,6 @@ export default function InicioSesion() {
             />
             <div className="help">
               Sólo se aceptan correos @duoc.cl, @profesor.duoc.cl o @gmail.com
-              (máx. 100).
             </div>
             {errors.email && <div className="error">{errors.email}</div>}
           </div>
@@ -121,7 +122,7 @@ export default function InicioSesion() {
               onChange={(e) => setPass(e.target.value)}
               className={errors.pass ? "is-invalid" : ""}
             />
-            <div className="help">Requerida, entre 4 y 10 caracteres.</div>
+            <div className="help">Requerida, mín. 4 caracteres.</div>
             {errors.pass && <div className="error">{errors.pass}</div>}
           </div>
 

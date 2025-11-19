@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'; // <-- 1. Importamos hooks
+import React, { useState, useEffect } from 'react'; // <-- 1. Importamos hooks
 // import { PRODUCTS } from '../data/products'; // <-- 2. ELIMINAMOS esta línea
 import { getProductos } from '../services/api'; // <-- 3. Importamos nuestra API
 import ProductGrid from '../components/ProductGridHome';

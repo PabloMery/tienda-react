@@ -1,21 +1,25 @@
 import React, { useState, useEffect } from "react";
-// --- INICIO DE LA MODIFICACIÓN (1/3): Se añade la importación ---
-import { registrarUsuario } from "../services/api";
+import { useNavigate } from "react-router-dom";
+// CAMBIO: Importamos la nueva función integrada 'registerUser'
+import { registerUser } from "../services/api";
 import "../styles/Registro.css";
 
 export default function Registro() {
+  const navigate = useNavigate();
+
   const [nombre, setNombre]         = useState(localStorage.getItem("nombre") || "");
   const [correo, setCorreo]         = useState(localStorage.getItem("correo") || "");
-  const [contrasena, setContrasena] = useState(localStorage.getItem("contrasena") || "");
-  const [confirmar, setConfirmar]   = useState(localStorage.getItem("confirmar") || "");
+  const [contrasena, setContrasena] = useState(""); // No guardar pass en localStorage por seguridad
+  const [confirmar, setConfirmar]   = useState("");
   const [telefono, setTelefono]     = useState(localStorage.getItem("telefono") || "");
   const [region, setRegion]         = useState(localStorage.getItem("region") || "");
   const [comuna, setComuna]         = useState(localStorage.getItem("comuna") || "");
+  
   const [regError, setRegError] = useState("");
   const [regOk, setRegOk] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // --- INICIO DE LA MODIFICACIÓN (2/3): Se eliminan estas constantes y funciones ---
-  // const USERS_KEY = "usuarios_v1"; // Ya no se necesita
+  // Mantenemos tu lista completa de comunas
   const comunasPorRegion = {
     "Arica y Parinacota": ["Arica", "Camarones", "General Lagos", "Putre"],
     "Tarapacá": ["Alto Hospicio","Camiña","Colchane","Huara","Iquique","Pica","Pozo Almonte"],
@@ -35,11 +39,8 @@ export default function Registro() {
     "Magallanes y de la Antártica Chilena": ["Antártica","Cabo de Hornos","Laguna Blanca","Natales","Porvenir","Primavera","Punta Arenas","Río Verde","San Gregorio","Timaukel","Torres del Paine"]
   };
   
-  // Los useEffect se mantienen para guardar el borrador del formulario
   useEffect(()=>{ localStorage.setItem("nombre", nombre); }, [nombre]);
   useEffect(()=>{ localStorage.setItem("correo", correo); }, [correo]);
-  useEffect(()=>{ localStorage.setItem("contrasena", contrasena); }, [contrasena]);
-  useEffect(()=>{ localStorage.setItem("confirmar", confirmar); }, [confirmar]);
   useEffect(()=>{ localStorage.setItem("telefono", telefono); }, [telefono]);
   useEffect(()=>{ localStorage.setItem("region", region); }, [region]);
   useEffect(()=>{ localStorage.setItem("comuna", comuna); }, [comuna]);
@@ -50,9 +51,6 @@ export default function Registro() {
   const isConfirmOk  = confirmar === contrasena && confirmar !== "";
   const isRegionOk   = !!region;
   const isComunaOk   = !!comuna;
-  
-  // const getUsers = () => {}; // Ya no se necesita
-  // const saveUsers = (arr) => {}; // Ya no se necesita
 
   const handleRegionChange = (e) => {
     const value = e.target.value;
@@ -60,14 +58,15 @@ export default function Registro() {
     setComuna("");
   };
 
-  // --- INICIO DE LA MODIFICACIÓN (3/3): Se reemplaza handleSubmit ---
   const handleSubmit = async (e) => {
     e.preventDefault();
     setRegError("");
     setRegOk(false);
+    setLoading(true);
 
     if (!isNombreOk || !isCorreoOk || !isPassOk || !isConfirmOk || !isRegionOk || !isComunaOk) {
       setRegError("Revisa los campos marcados en rojo ❌");
+      setLoading(false);
       return;
     }
 
@@ -81,11 +80,13 @@ export default function Registro() {
     };
 
     try {
-      await registrarUsuario(nuevoUsuario);
+      // CAMBIO: Llamada a la API integrada (Node + Java)
+      await registerUser(nuevoUsuario);
       
       setRegOk(true);
       setRegError("");
       
+      // Limpiar formulario
       setNombre("");
       setCorreo("");
       setContrasena("");
@@ -94,12 +95,18 @@ export default function Registro() {
       setRegion("");
       setComuna("");
 
-      const fieldsToClear = ["nombre", "correo", "contrasena", "confirmar", "telefono", "region", "comuna"];
+      const fieldsToClear = ["nombre", "correo", "telefono", "region", "comuna"];
       fieldsToClear.forEach(field => localStorage.removeItem(field));
+      
+      alert("¡Registro exitoso en ambos sistemas! Redirigiendo...");
+      navigate("/login");
 
     } catch (error) {
-      setRegError(error.message);
+      // Mostramos el mensaje de error que viene del backend (ej: "Usuario ya existe")
+      setRegError(error.message || "Ocurrió un error en el registro");
       setRegOk(false);
+    } finally {
+        setLoading(false);
     }
   };
 
@@ -111,7 +118,6 @@ export default function Registro() {
         </header>
 
         <form className="formulario" onSubmit={handleSubmit}>
-          {/* El JSX del formulario se mantiene exactamente igual */}
           <div className="form-group">
             <label htmlFor="nombre">Nombre completo</label>
             <input
@@ -137,7 +143,7 @@ export default function Registro() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="contrasena">Contraseña</label>
+            <label htmlFor="contrasena">Contraseña (mín 5)</label>
             <input
               type="password"
               id="contrasena"
@@ -210,14 +216,17 @@ export default function Registro() {
             </div>
           </div>
 
-          <button type="submit" className="btn-registrar">Registrar</button>
+          <button type="submit" className="btn-registrar" disabled={loading}>
+             {loading ? "Registrando..." : "Registrar"}
+          </button>
+
           {regError && (
-            <p className="error" style={{ marginTop: 12 }}>
+            <p className="error" style={{ marginTop: 12, color: "red", textAlign: "center" }}>
               {regError}
             </p>
           )}
           {regOk && (
-            <p className="ok" style={{ marginTop: 12 }}>
+            <p className="ok" style={{ marginTop: 12, color: "green", textAlign: "center" }}>
               Registro guardado correctamente ✅
             </p>
           )}
