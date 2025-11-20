@@ -1,0 +1,87 @@
+/* src/styles/grid2.css */
+
+:root {
+  --pg-gap: 20px;            /* Espacio entre tarjetas */
+  --pg-min-col: 250px;       /* Ancho mínimo de tarjeta */
+  --pg-radius: 12px;
+  --pg-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --pg-bg: #ffffff;
+  --pg-border: #e5e7eb;
+  --pg-img-ratio: 4 / 3;     /* Proporción rectangular */
+}
+
+/* CONTENEDOR PRINCIPAL */
+.products-grid {
+  display: grid;
+  /* Esta línea es la MAGIA: crea columnas automáticas */
+  grid-template-columns: repeat(auto-fill, minmax(var(--pg-min-col), 1fr));
+  gap: var(--pg-gap);
+  padding: 1rem 0;
+  width: 100%; /* Asegura que ocupe el ancho disponible */
+}
+
+/* TARJETA */
+.pg-card {
+  background-color: var(--pg-bg);
+  border: 1px solid var(--pg-border);
+  border-radius: var(--pg-radius);
+  box-shadow: var(--pg-shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+  height: 100%;
+}
+
+.pg-card:hover {
+  transform: translateY(-5px);
+  border-color: #00ffff;
+}
+
+/* IMAGEN */
+.pg-card-img {
+  width: 100%;
+  aspect-ratio: var(--pg-img-ratio);
+  object-fit: cover; /* Recorta la imagen para que encaje perfecto */
+  display: block;
+}
+
+/* CUERPO */
+.pg-card-body {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  gap: 0.5rem;
+}
+
+.pg-category {
+  font-size: 0.85rem;
+  color: #888;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.pg-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+  color: #333;
+  line-height: 1.3;
+}
+
+.pg-footer {
+  margin-top: auto;
+  padding-top: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pg-price {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #2563eb;
+}

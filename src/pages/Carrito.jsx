@@ -142,8 +142,7 @@ export default function Carrito() {
             <button
               className="button-icon primary"
               title="Aplicar"
-              // Si tu lógica aplica el cupón al escribir, este botón puede ser decorativo;
-              // si necesitas acción explícita, puedes llamar aquí a una función de aplicar.
+
               onClick={() => {/* opcional: lógica para aplicar cupón */}}
             >
               ✓

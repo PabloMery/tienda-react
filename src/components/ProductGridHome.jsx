@@ -1,45 +1,61 @@
 import React from 'react';
-import '../styles/grid2.css';
+import { Link } from 'react-router-dom'; // Usamos Link para que la tarjeta sea clicable
+import '../styles/grid2.modular.css'; // Importamos el CSS nuevo
 import { money } from '../utils/money';
 
-export default function ProductGrid({ products = [] }) {
+export default function ProductGridHome({ products = [] }) {
+
+  // Helper para las URLs de imágenes
+  const getImageSrc = (imgUrl) => {
+    if (!imgUrl) return '/IMG/placeholder.jpg';
+    if (imgUrl.startsWith('/api')) {
+      return `http://localhost:8080${imgUrl}`;
+    }
+    return imgUrl;
+  };
 
   if (!products || products.length === 0) {
     return (
-      <section className="section" id="productos" aria-labelledby="titulo-prods">
-        <h2 className="visually-hidden" id="titulo-prods">Productos destacados</h2>
-        <div id="grid2" className="grid" role="list">
+      <section className="section" aria-label="Productos destacados">
+        <div className="products-grid">
           <p className="muted">No hay productos disponibles.</p>
         </div>
       </section>
     );
   }
 
-  // Si hay productos
   return (
-    <section className="section" id="productos" aria-labelledby="titulo-prods">
-      <h2 className="visually-hidden" id="titulo-prods">Productos destacados</h2>
-
-      <div id="grid2" className="grid" role="list">
-        {products.map((p, i) => {
-          const img =
-            p.images && p.images[0] ? p.images[0] : '../IMG/placeholder.jpg';
+    <section className="section" aria-label="Productos destacados">
+      {/* CAMBIO 1: Usamos la clase 'products-grid' del nuevo CSS */}
+      <div className="products-grid">
+        
+        {products.map((p) => {
+          const img = getImageSrc(p.images && p.images[0]);
 
           return (
-            <article
-              key={p.id ?? i}
-              className="card col-12 sm-col-6 lg-col-3"
-              role="listitem"
+
+            <Link 
+              to={`/producto/${p.id}`} 
+              key={p.id} 
+              className="pg-card"
             >
-              <img src={img} alt={p.name} loading="lazy" />
-              <div className="card__body">
-                <div className="muted">{p.category}</div>
-                <h3 style={{ margin: '.2rem 0 .3rem' }}>{p.name}</h3>
-                <div className="card__row">
-                  <span className="price">{money(p.price)}</span>
+
+              <img 
+                src={img} 
+                alt={p.name} 
+                className="pg-card-img" 
+                loading="lazy" 
+              />
+              
+              <div className="pg-card-body">
+                <span className="pg-category">{p.category}</span>
+                <h3 className="pg-title">{p.name}</h3>
+                
+                <div className="pg-footer">
+                  <span className="pg-price">{money(p.price)}</span>
                 </div>
               </div>
-            </article>
+            </Link>
           );
         })}
       </div>
