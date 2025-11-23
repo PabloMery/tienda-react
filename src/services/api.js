@@ -155,7 +155,6 @@ export const getUserProfile = async (email) => {
             params: { correo: email.trim() }
         });
         
-        console.log("✅ Perfil encontrado:", response.data);
         return response.data;
 
     } catch (error) {
