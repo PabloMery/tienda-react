@@ -117,8 +117,8 @@ export const loginUser = async (credentials) => {
     try {
         // Node espera { email, password }
         const response = await axios.post(`${API_AUTH_URL}/login`, {
-            email: credentials.correo || credentials.email, // Adaptamos por si envías 'correo'
-            password: credentials.pass || credentials.password // Adaptamos por si envías 'pass'
+            email: credentials.correo || credentials.email, 
+            password: credentials.pass || credentials.password
         });
         
         if (response.data.token) {
@@ -128,7 +128,6 @@ export const loginUser = async (credentials) => {
         return response.data;
     } catch (error) {
         console.error("Error en login:", error);
-        // Devolvemos el error formateado para que el componente lo entienda
         throw error.response ? error.response.data : { error: "Error de conexión con el servidor de autenticación" };
     }
 };
@@ -172,32 +171,36 @@ export const registerUser = async (userData) => {
         throw { message: msg };
     }
 };
-export const getUserProfile = async (email) => {
-    try {
-        console.log("📡 Buscando perfil en Java para:", email);
-        
-        const response = await axios.get(API_USUARIOS_URL);
-        console.log("📦 Respuesta de Java:", response.data); // Veremos qué devuelve Java
 
-        const usuarios = response.data;
+/**
+ * OBTENER PERFIL (OPTIMIZADO):
+ * Busca un usuario específico por correo en el backend de Java.
+ */
+export const getUserProfile = async (email) => {
+    if (!email) return null;
+
+    try {
+        console.log("📡 Consultando API Java para:", email);
         
-        // Buscamos ignorando mayúsculas/minúsculas y espacios
-        const usuarioEncontrado = usuarios.find(u => 
-            u.correo.trim().toLowerCase() === email.trim().toLowerCase()
-        );
+        // Usamos el endpoint específico de búsqueda
+        const response = await axios.get(`${API_USUARIOS_URL}/buscar`, {
+            params: { correo: email.trim() } // Importante: trim() para evitar errores por espacios
+        });
         
-        if (usuarioEncontrado) {
-            console.log("✅ Usuario encontrado:", usuarioEncontrado);
-            return usuarioEncontrado;
-        } else {
-            console.warn("⚠️ Usuario no encontrado en la lista de Java.");
-            return null;
-        }
+        console.log("✅ Usuario encontrado:", response.data);
+        return response.data;
+
     } catch (error) {
-        console.error("❌ Error obteniendo perfil:", error);
+        if (error.response && error.response.status === 404) {
+            console.warn("⚠️ El usuario no existe en la BD Java (404 Not Found).");
+        } else {
+            console.error("❌ Error de conexión con Java:", error);
+        }
         return null;
     }
 };
+
+
 // Función auxiliar para cerrar sesión
 export const logoutUser = () => {
     localStorage.removeItem('token');
