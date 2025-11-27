@@ -145,33 +145,41 @@ export const loginUser = async (credentials) => {
 };
 
 export const registerUser = async (userData) => {
-    try {
-        // 1. Registrar en Node (Auth)
-        const authResponse = await axios.post(`${API_AUTH_URL}/register`, {
-            email: userData.correo, 
-            password: userData.pass
-        });
+  try {
+    // 1) Registrar en Node (auth)
+    const authResponse = await axios.post(`${API_AUTH_URL}/register`, {
+      email: userData.correo,
+      password: userData.pass, // la misma pass que pusiste en el formulario
+    });
 
-        // 2. Registrar en Java (Perfil) si Node fue exitoso
-        if (authResponse.status === 200 || authResponse.status === 201) {
-            try {
-                await axios.post(API_USUARIOS_URL, {
-                    nombre: userData.nombre,
-                    correo: userData.correo,
-                    pass: "ENCRIPTADA_NODE", // Dummy pass para Java
-                    telefono: userData.telefono || "",
-                    region: userData.region || "",
-                    comuna: userData.comuna || ""
-                });
-            } catch (javaError) {
-                console.error("Error al sincronizar con Java:", javaError);
-            }
-        }
-        return authResponse.data;
-    } catch (error) {
-        const msg = error.response?.data?.error || "Error en el registro.";
-        throw { message: msg };
+    // 2) Registrar en Java (perfil de usuario)
+    try {
+      await axios.post(API_USUARIOS_URL, {
+        nombre: userData.nombre,
+        correo: userData.correo,
+        pass: userData.pass,              // 🔴 AQUÍ ESTABA EL PROBLEMA
+        telefono: userData.telefono || '',
+        region: userData.region || '',
+        comuna: userData.comuna || '',
+      });
+    } catch (javaError) {
+      // Java puede devolver 409 con { error: "El correo ya está registrado..." }
+      const msg =
+        javaError.response?.data?.error ||
+        'Error creando el perfil en el servicio de usuarios.';
+      throw new Error(msg);
     }
+
+    // Si las dos cosas salieron bien, devolvemos lo de Node
+    return authResponse.data;
+  } catch (error) {
+    const msg =
+      error.response?.data?.error ||
+      error.message ||
+      'Error en el registro.';
+    // lanzo con message para que el componente lo pueda mostrar
+    throw { message: msg };
+  }
 };
 
 export const getUserProfile = async (email) => {

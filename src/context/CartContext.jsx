@@ -1,133 +1,120 @@
-/* eslint-disable react-refresh/only-export-components */
 // src/context/CartContext.jsx
+/* eslint-disable react-refresh/only-export-components */
 import React, {
   createContext,
   useContext,
   useMemo,
   useState,
   useEffect,
-} from 'react';
-
-import { useLocalStorage } from '../hooks/useLocalStorage';
+} from "react";
+import { useLocalStorage } from "../hooks/useLocalStorage";
+import { getProductos } from "../services/api";
 import {
-  getProductos,
-  mergeRemoteCart,
-  addRemoteCartItem,
-  updateRemoteCartItem,
-  removeRemoteCartItem,
-  clearRemoteCart,
-} from '../services/api';
+  fetchCartFromServer,
+  addItemServer,
+  updateItemServer,
+  removeItemServer,
+  clearCartServer,
+} from "../services/cartApi";
 
-const CART_KEY = 'cart_v2';
-const COUPON_KEY = 'cart_coupon_v1';
+const CART_KEY = "cart_v2";
+const COUPON_KEY = "cart_coupon_v1";
 
 const CartCtx = createContext();
 export const useCart = () => useContext(CartCtx);
 
-// ==========================
-//   HELPERS
-// ==========================
-
+// Limita cantidad por stock
 function clampQty(qty, stock) {
   const s = Number.isFinite(Number(stock)) ? Math.max(0, Number(stock)) : Infinity;
   const q = Math.max(0, Number(qty) || 0);
   return Math.min(q, s);
 }
 
-function getSessionUserId() {
+// Lee usuario de sesión
+function getSessionUser() {
   try {
-    const raw = localStorage.getItem('session_user');
+    const raw = localStorage.getItem("user");
     if (!raw) return null;
-    const session = JSON.parse(raw);
-    return session?.id ?? null;
+    return JSON.parse(raw);
   } catch {
     return null;
   }
 }
 
-// ==========================
-//   PROVIDER
-// ==========================
-
 export function CartProvider({ children }) {
-  const [cart, setCart] = useLocalStorage(CART_KEY, []);
-  const [coupon, setCoupon] = useLocalStorage(COUPON_KEY, '');
-
-  // Lista de productos desde el backend
+  const [cart, setCart] = useLocalStorage(CART_KEY, []); // {id, qty}
+  const [coupon, setCoupon] = useLocalStorage(COUPON_KEY, "");
   const [productList, setProductList] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [syncing, setSyncing] = useState(false);
 
-  // Loading general de productos
-  const [loading, setLoading] = useState(true);
+  const [sessionUser, setSessionUser] = useState(getSessionUser());
 
-  // Flag para no hacer merge remoto más de una vez
-  const [hasSyncedRemote, setHasSyncedRemote] = useState(false);
-
-  // 1) Cargamos productos al iniciar
+  // Actualizar usuario si cambia localStorage (ej: login/logout)
   useEffect(() => {
-    const loadProductData = async () => {
-      try {
-        const data = await getProductos();
-        setProductList(Array.isArray(data) ? data : []);
-      } catch (e) {
-        console.error('Error cargando productos para el carrito:', e);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadProductData();
+    const handler = () => setSessionUser(getSessionUser());
+    window.addEventListener("storage", handler);
+    return () => window.removeEventListener("storage", handler);
   }, []);
 
-  // 2) Al tener usuario logueado + carrito local, hacer MERGE inicial con backend
+  // Cargar productos
   useEffect(() => {
-    if (hasSyncedRemote) return;
+    const loadProducts = async () => {
+      const data = await getProductos();
+      setProductList(data || []);
+      setLoadingProducts(false);
+    };
+    loadProducts();
+  }, []);
 
-    const userId = getSessionUserId();
-    if (!userId) return; // invitado, no sincronizamos
-    if (!cart || cart.length === 0) {
-      setHasSyncedRemote(true);
-      return;
-    }
+  // Si hay usuario con id, sincroniza carrito local con servidor
+  useEffect(() => {
+    const sync = async () => {
+      if (!sessionUser || !sessionUser.id) return;
+      setSyncing(true);
 
-    const doMerge = async () => {
-      try {
-        const itemsToMerge = cart
-          .filter((i) => i && i.id && i.qty > 0)
-          .map((i) => ({
-            productId: i.id,
-            quantity: i.qty,
-          }));
+      // 1. Obtenemos carrito actual del servidor
+      const serverCart = await fetchCartFromServer();
 
-        if (itemsToMerge.length > 0) {
-          await mergeRemoteCart(itemsToMerge);
+      // 2. Si el servidor aún no tiene items, mandamos lo que haya en local
+      if (serverCart && (!serverCart.items || serverCart.items.length === 0) && cart.length > 0) {
+        // merge simple: mandamos todos los items locales como "add"
+        for (const item of cart) {
+          await addItemServer(Number(item.id), Number(item.qty) || 1);
         }
-      } catch (err) {
-        console.error('Error haciendo merge de carrito remoto:', err);
-      } finally {
-        setHasSyncedRemote(true);
       }
+
+      // 3. Volvemos a leer y dejamos local igual al del servidor
+      const updated = await fetchCartFromServer();
+      if (updated && Array.isArray(updated.items)) {
+        const newCart = updated.items.map((it) => ({
+          id: Number(it.productId),
+          qty: Number(it.quantity) || 0,
+        }));
+        setCart(newCart);
+      }
+
+      setSyncing(false);
     };
 
-    doMerge();
-  }, [cart, hasSyncedRemote]);
-
-  // ==========================
-  //   FUNCIONES INTERNAS
-  // ==========================
+    sync();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionUser?.id]);
 
   function findProduct(id) {
-    return productList.find((p) => p.id === id);
+    const nId = Number(id);
+    return productList.find((p) => Number(p.id) === nId);
   }
 
-  function computeTotals(cartState, couponCode) {
-    const detailed = cartState
+  function computeTotals(currentCart, couponCode) {
+    const detailed = currentCart
       .map((item) => {
         const p = findProduct(item.id);
         if (!p) return null;
-
         const qty = clampQty(item.qty, p.stock);
         return {
           ...item,
+          id: Number(item.id),
           qty,
           product: p,
           line: p.price * qty,
@@ -138,116 +125,87 @@ export function CartProvider({ children }) {
     const subtotal = detailed.reduce((a, i) => a + i.line, 0);
     const totalItems = detailed.reduce((a, i) => a + i.qty, 0);
 
-    // Lógica de cupones
     let discount = 0;
-    const code = (couponCode || '').toUpperCase();
-    if (code === 'DESCUENTO10') discount = Math.round(subtotal * 0.1);
-    if (code === 'FREESHIP') discount = 4000;
-    if (code === '90PORCIENTO') discount = Math.round(subtotal * 0.9);
+    const code = (couponCode || "").toUpperCase();
+    if (code === "DESCUENTO10") discount = Math.round(subtotal * 0.1);
+    if (code === "FREESHIP") discount = 4000;
+    if (code === "90PORCIENTO") discount = Math.round(subtotal * 0.9);
     if (discount > subtotal) discount = subtotal;
 
     const total = subtotal - discount;
-
     return { detailed, subtotal, discount, total, totalItems, code };
   }
 
-  // ==========================
-  //   API EXTERNA DEL CONTEXTO
-  // ==========================
-
   const api = useMemo(() => {
-    const add = (id, qty = 1) => {
+    const isLogged = !!(sessionUser && sessionUser.id);
+
+    const add = async (id, qty = 1) => {
       const p = findProduct(id);
       if (!p) return;
+
+      const nId = Number(id);
+      const nQty = Number(qty) || 1;
 
       // 1) Actualizamos local
       setCart((prev) => {
-        const i = prev.findIndex((x) => x.id === id);
+        const i = prev.findIndex((x) => Number(x.id) === nId);
         if (i >= 0) {
           const current = Number(prev[i].qty) || 0;
-          const nextQty = clampQty(current + qty, p.stock);
+          const nextQty = clampQty(current + nQty, p.stock);
           const copy = [...prev];
-          copy[i] = { ...copy[i], qty: nextQty };
+          copy[i] = { ...copy[i], id: nId, qty: nextQty };
           return copy.filter((x) => (Number(x.qty) || 0) > 0);
         }
-        const firstQty = clampQty(qty, p.stock);
-        return firstQty > 0 ? [...prev, { id, qty: firstQty }] : prev;
+        const firstQty = clampQty(nQty, p.stock);
+        return firstQty > 0
+          ? [...prev, { id: nId, qty: firstQty }]
+          : prev;
       });
 
-      // 2) Enviamos al microservicio si hay usuario
-      const userId = getSessionUserId();
-      if (userId) {
-        addRemoteCartItem(id, qty).catch((err) =>
-          console.error('Error agregando item al carrito remoto:', err)
-        );
+      // 2) Si está logueado, avisamos al servidor
+      if (isLogged) {
+        await addItemServer(nId, nQty);
       }
     };
 
-    const setQty = (id, qty) => {
+    const setQty = async (id, qty) => {
       const p = findProduct(id);
       if (!p) return;
+      const nId = Number(id);
+      const nQty = clampQty(qty, p.stock);
 
-      const nextQty = clampQty(qty, p.stock);
+      setCart((prev) => {
+        const i = prev.findIndex((x) => Number(x.id) === nId);
+        if (i < 0) {
+          return nQty > 0 ? [...prev, { id: nId, qty: nQty }] : prev;
+        }
+        const copy = [...prev];
+        copy[i] = { ...copy[i], id: nId, qty: nQty };
+        return copy.filter((x) => (Number(x.qty) || 0) > 0);
+      });
 
-      // 1) Actualizamos local
-      setCart((prev) =>
-        prev
-          .map((x) => (x.id === id ? { ...x, qty: nextQty } : x))
-          .filter((x) => (Number(x.qty) || 0) > 0)
-      );
-
-      // 2) Actualizamos remoto
-      const userId = getSessionUserId();
-      if (!userId) return;
-
-      if (nextQty <= 0) {
-        // si quedó en 0, elimina
-        removeRemoteCartItem(id).catch((err) =>
-          console.error('Error eliminando item remoto en setQty:', err)
-        );
-      } else {
-        updateRemoteCartItem(id, nextQty).catch((err) =>
-          console.error('Error actualizando cantidad remota:', err)
-        );
+      if (isLogged) {
+        await updateItemServer(nId, nQty);
       }
     };
 
-    const remove = (id) => {
-      // 1) Local
-      setCart((prev) => prev.filter((x) => x.id !== id));
+    const remove = async (id) => {
+      const nId = Number(id);
+      setCart((prev) => prev.filter((x) => Number(x.id) !== nId));
 
-      // 2) Remoto
-      const userId = getSessionUserId();
-      if (userId) {
-        removeRemoteCartItem(id).catch((err) =>
-          console.error('Error eliminando item remoto:', err)
-        );
+      if (isLogged) {
+        await removeItemServer(nId);
       }
     };
 
-    const clear = () => {
-      // 1) Local
+    const clear = async () => {
       setCart([]);
-
-      // 2) Remoto
-      const userId = getSessionUserId();
-      if (userId) {
-        clearRemoteCart().catch((err) =>
-          console.error('Error limpiando carrito remoto:', err)
-        );
+      if (isLogged) {
+        await clearCartServer();
       }
     };
 
-    const getStock = (id) => {
-      const p = findProduct(id);
-      return Number(p?.stock ?? 0);
-    };
-
-    const getStockLeft = (id) => {
-      const stock = getStock(id);
-      const inCart = Number(cart.find((x) => x.id === id)?.qty || 0);
-      return Math.max(0, stock - inCart);
-    };
+    const setCouponCode = (code) => setCoupon(code || "");
 
     const totals = computeTotals(cart, coupon);
 
@@ -256,35 +214,26 @@ export function CartProvider({ children }) {
       coupon,
       totals,
       totalItems: totals.totalItems,
-      setCoupon: (c) => setCoupon((c || '').toUpperCase()),
-      clearCoupon: () => setCoupon(''),
       add,
       setQty,
       remove,
       clear,
-      getStock,
-      getStockLeft,
+      setCouponCode,
+      isLogged,
+      sessionUser,
+      loading: loadingProducts || syncing,
     };
-  }, [cart, coupon, setCart, setCoupon, productList]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cart, coupon, productList, loadingProducts, syncing, sessionUser?.id]);
 
-  // ==========================
-  //   RENDER
-  // ==========================
-
-  if (loading) {
+  if (loadingProducts) {
     return (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-          backgroundColor: '#111',
-          color: 'white',
-        }}
-      >
-        <h2>Cargando Tienda...</h2>
-      </div>
+      <CartCtx.Provider value={{ cart: [], totals: {}, totalItems: 0 }}>
+        <div style={{ padding: 32, textAlign: "center", color: "#ccc" }}>
+          Cargando tienda…
+        </div>
+        {children}
+      </CartCtx.Provider>
     );
   }
 
