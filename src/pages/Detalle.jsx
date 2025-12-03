@@ -147,26 +147,24 @@ export default function Detalle() {
             </div>
 
             <div className="panel right">
-              {/* --- ZONA DE ADMINISTRACIÓN (Sólo visible para Admin) --- */}
               {isAdmin && (
                 <div style={{ 
                   marginBottom: '1.5rem', 
                   padding: '1rem', 
                   border: '1px dashed #444', 
                   borderRadius: '8px',
-                  backgroundColor: '#222' 
+                  backgroundColor: '#a19f9fff' 
                 }}>
-                  <strong style={{ color: '#888', display: 'block', marginBottom: '0.5rem', fontSize: '0.8rem' }}>
+                  <strong style={{ color: '#222020ff', display: 'block', marginBottom: '0.5rem', fontSize: '0.8rem' }}>
                     PANEL DE ADMINISTRADOR
                   </strong>
                   <div style={{ display: 'flex', gap: '10px' }}>
-                    {/* Botón Editar (Redirige a una ruta futura) */}
                     <button 
                       onClick={() => navigate(`/admin/editar/${p.id}`)}
                       style={{ 
                         padding: '8px 16px', 
-                        background: '#00ffff', 
-                        color: '#000', 
+                        background: '#347addff', 
+                        color: '#ffffffff', 
                         border: 'none', 
                         borderRadius: '4px', 
                         fontWeight: 'bold', 
@@ -180,7 +178,7 @@ export default function Detalle() {
                       onClick={handleDelete}
                       style={{ 
                         padding: '8px 16px', 
-                        background: '#ff4444', 
+                        background: '#bb2a2aff', 
                         color: '#fff', 
                         border: 'none', 
                         borderRadius: '4px', 
@@ -229,7 +227,6 @@ export default function Detalle() {
 
           {related.length > 0 && (
             <section className="related">
-              {/* ... (Tu sección de relacionados sigue igual) ... */}
               <h2>Productos Relacionados</h2>
               <div id="related" className="rel__list">
                 {related.map(r => (
